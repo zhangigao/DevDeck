@@ -1,0 +1,50 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /dev-deck
+spring:
+  application:
+    name: dev-deck
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: ${POSTGRES_USERNAME}
+    password: ${POSTGRES_PASSWORD}
+    url: jdbc:postgresql://127.0.0.1:5432/dev_deck
+    hikari:
+        connection-timeout: 20000
+        idle-timeout: 600000
+        max-lifetime: 1800000
+        maximum-pool-size: 200
+        minimum-idle: 10
+        pool-name: dev-deck-pool
+        connection-test-query: SELECT 1
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      password: ${REDIS_PASSWORD}
+      database: 0
+
+mybatis-plus:
+  mapper-locations: classpath*:mapper/*.xml
+  type-aliases-package: org.zhj.devdeck.model.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted_at
+      logic-delete-value: now()
+      logic-not-delete-value: "null"
+    banner: false
+mail:
+  host: smtp.163.com
+  username: ${MAIL_USERNAME:}
+  password: ${MAIL_PASSWORD:}
+  verification:
+    template: ${MAIL_VERIFICATION_TEMPLATE:}
+    subject: ${MAIL_VERIFICATION_SUBJECT:}

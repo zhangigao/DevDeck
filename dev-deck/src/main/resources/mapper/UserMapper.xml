@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhj.devdeck.mapper.UserMapper">
+
+    <resultMap id="BaseResultMap" type="org.zhj.devdeck.entity.User">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="uuid" column="uuid" jdbcType="VARCHAR"/>
+            <result property="email" column="email" jdbcType="VARCHAR"/>
+            <result property="password" column="password" jdbcType="VARCHAR"/>
+            <result property="nickname" column="nickname" jdbcType="VARCHAR"/>
+            <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+            <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+            <result property="deletedAt" column="deleted_at" jdbcType="TIMESTAMP"/>
+            <result property="avatarUrl" column="avatar_url" jdbcType="VARCHAR"/>
+            <result property="githubId" column="github_id" jdbcType="VARCHAR"/>
+            <result property="githubLogin" column="github_login" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,email,password,
+        nickname,created_at,updated_at,
+        deleted_at,avatar_url,github_id,
+        github_login
+    </sql>
+
+    <select id="getUserByRole" resultType="org.zhj.devdeck.entity.User">
+        select u.*
+            FROM
+            users u JOIN user_roles ur ON u.id = ur.user_id
+            WHERE
+            ur.role_id = #{code}
+            LIMIT #{defaultUserTotal}
+    </select>
+</mapper>

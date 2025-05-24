@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhj.devdeck.mapper.QuestionMapper">
+
+    <resultMap id="BaseResultMap" type="org.zhj.devdeck.entity.Question">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="uuid" column="uuid" jdbcType="CHAR"/>
+            <result property="title" column="title" jdbcType="VARCHAR"/>
+            <result property="slug" column="slug" jdbcType="VARCHAR"/>
+            <result property="content" column="content" jdbcType="VARCHAR"/>
+            <result property="answerTemplate" column="answer_template" jdbcType="VARCHAR"/>
+            <result property="correctAnswer" column="correct_answer" jdbcType="OTHER"/>
+            <result property="type" column="type" jdbcType="SMALLINT"/>
+            <result property="difficulty" column="difficulty" jdbcType="SMALLINT"/>
+            <result property="submitCount" column="submit_count" jdbcType="INTEGER"/>
+            <result property="hint" column="hint" jdbcType="VARCHAR"/>
+            <result property="source" column="source" jdbcType="VARCHAR"/>
+            <result property="isOfficial" column="is_official" jdbcType="BOOLEAN"/>
+            <result property="isEnabled" column="is_enabled" jdbcType="BOOLEAN"/>
+            <result property="createdBy" column="created_by" jdbcType="INTEGER"/>
+            <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+            <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+            <result property="deletedAt" column="deleted_at" jdbcType="TIMESTAMP"/>
+            <result property="updatedBy" column="updated_by" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,uuid,title,
+        slug,content,answer_template,
+        correct_answer,type,difficulty,
+        submit_count,hint,source,
+        is_official,is_enabled,created_by,
+        created_at,updated_at,deleted_at,
+        updated_by
+    </sql>
+</mapper>

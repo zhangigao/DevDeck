@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhj.devdeck.mapper.RoleMapper">
+
+    <resultMap id="BaseResultMap" type="org.zhj.devdeck.entity.Role">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="name" column="name" jdbcType="VARCHAR"/>
+            <result property="description" column="description" jdbcType="VARCHAR"/>
+            <result property="createdBy" column="created_by" jdbcType="INTEGER"/>
+            <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+            <result property="updatedBy" column="updated_by" jdbcType="INTEGER"/>
+            <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+            <result property="deletedAt" column="deleted_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <resultMap id="roleVoMap" type="org.zhj.devdeck.vo.RoleVO">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="description" column="description" jdbcType="VARCHAR"/>
+        <result property="createdBy" column="created_by" jdbcType="INTEGER"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="updatedBy" column="updated_by" jdbcType="INTEGER"/>
+        <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+        <collection property="permissions" ofType="org.zhj.devdeck.vo.PermissionVO">
+            <id property="id" column="permission_id" jdbcType="INTEGER"/>
+            <result property="name" column="permission_name" jdbcType="VARCHAR"/>
+            <result property="description" column="permission_description" jdbcType="VARCHAR"/>
+            <result property="createdBy" column="permission_created_by" jdbcType="INTEGER"/>
+            <result property="createdAt" column="permission_created_at" jdbcType="TIMESTAMP"/>
+            <result property="updatedBy" column="permission_updated_by" jdbcType="INTEGER"/>
+            <result property="updatedAt" column="permission_updated_at" jdbcType="TIMESTAMP"/>
+        </collection>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,name,description,
+        created_by,created_at,updated_by,
+        updated_at,deleted_at
+    </sql>
+    <select id="getRoleDetail" resultType="org.zhj.devdeck.vo.RoleVO" resultMap="roleVoMap">
+        select
+            r.id,r.name,r.description,r.created_by,r.created_at,r.updated_by,r.updated_at,r.deleted_at,
+        p.id as permission_id,p.name as permission_name,p.description as permission_description,
+        p.created_by as permission_created_by,p.created_at as permission_created_at,
+        p.updated_by as permission_updated_by,p.updated_at as permission_updated_at,
+        p.deleted_atas permission_deleted_at
+        from role r
+        left join role_permission rp on r.id = rp.role_id
+        left join permission p on rp.permission_id = p.id
+        where r.id = #{id}
+        and r.deleted_at is null
+        and p.deleted_at is null
+    </select>
+</mapper>
