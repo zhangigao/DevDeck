@@ -1,24 +1,21 @@
 package org.zhj.devdeck.controller;
 
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.zhj.devdeck.assembles.UserService;
 import org.zhj.devdeck.common.Result;
 import org.zhj.devdeck.dto.RegisterDTO;
+import org.zhj.devdeck.entity.User;
 import org.zhj.devdeck.enums.ResultCode;
-import org.zhj.devdeck.request.CaptchaRequest;
-import org.zhj.devdeck.request.LoginRequest;
-import org.zhj.devdeck.request.RegisterRequest;
-import org.zhj.devdeck.request.SendEmailCodeRequest;
+import org.zhj.devdeck.request.*;
 import org.zhj.devdeck.response.CaptchaResponse;
+import org.zhj.devdeck.response.LoginResponse;
+import org.zhj.devdeck.utils.UserContext;
 
 import java.util.Map;
 
@@ -59,21 +56,21 @@ public class UserController {
 
 
     @PostMapping("/login")
-    public Result<Map<String,String>> loginByPassword(@RequestBody @Validated(LoginRequest.PasswordLogin.class) LoginRequest request) {
-        String token = userService.loginByPassword(request.getEmail(), request.getPassword());
-        if (StringUtils.isEmpty(token)) {
+    public Result<LoginResponse> loginByPassword(@RequestBody @Validated(LoginRequest.PasswordLogin.class) LoginRequest request) {
+        LoginResponse response = userService.loginByPassword(request.getEmail(), request.getPassword());
+        if (ObjectUtils.isEmpty(request)) {
             return Result.error(ResultCode.USERNAME_OR_PASSWORD_ERROR);
         }
-        return Result.success(Map.of("token",token),"登录成功");
+        return Result.success(response);
     }
 
     @PostMapping("/login/code")
-    public Result<Map<String,String>> loginByCode(@RequestBody @Validated(LoginRequest.CodeLogin.class) LoginRequest request) {
-        String token = userService.loginByCode(request.getEmail(), request.getCode());
-        if (StringUtils.isEmpty(token)) {
-            return Result.error(ResultCode.USERNAME_OR_PASSWORD_ERROR);
+    public Result<LoginResponse> loginByCode(@RequestBody @Validated(LoginRequest.CodeLogin.class) LoginRequest request) {
+        LoginResponse response = userService.loginByCode(request.getEmail(), request.getCode());
+        if (ObjectUtils.isEmpty(response)) {
+            return Result.error(ResultCode.EMAIL_NOT_REGISTERED);
         }
-        return Result.success(Map.of("token",token),"登录成功");
+        return Result.success(response);
     }
 
     @PostMapping("/register")
@@ -83,6 +80,48 @@ public class UserController {
         return Result.success(userService.register(registerDTO));
     }
 
+    @GetMapping("/logout")
+    public Result<String> logout() {
+        Integer uid = UserContext.require().getId();
+        userService.logout(uid);
+        return Result.success("注销成功");
+    }
+
+    @PutMapping("/password")
+    public Result<String> updatePassword(@RequestBody @Validated(UserUpdateRequest.Password.class) UserUpdateRequest request) {
+        userService.updatePassword(request.getOldPassword(), request.getNewPassword());
+        return Result.success("修改密码成功");
+    }
+
+    @GetMapping("/upload-token")
+    public Result<String> getUploadToken() {
+        String uuid = UserContext.require().getUuid();
+        return Result.success(userService.uploadToken(uuid));
+    }
+
+    @PostMapping("/update-avatar")
+    public Result<String> updateAvatar(@RequestBody @Validated(UserUpdateRequest.Avatar.class) UserUpdateRequest request) {
+        User user = UserContext.require();
+        user.setAvatarUrl(request.getAvatarUrl());
+        userService.updateAvatar(user);
+        return Result.success("头像更新成功");
+    }
+
+    @PutMapping("/nickname")
+    public Result<String> updateUser(@RequestBody @Validated(UserUpdateRequest.Nickname.class) UserUpdateRequest request) {
+        User user = UserContext.require();
+        user.setNickname(request.getNickname());
+        userService.updateNickname(user);
+        return Result.success("用户信息更新成功");
+    }
+
+    @GetMapping("/current")
+    public Result<LoginResponse> getCurrentUser() {
+        User user = UserContext.require();
+        LoginResponse response = new LoginResponse();
+        BeanUtils.copyProperties(user, response);
+        return Result.success(response);
+    }
 
     /** 获取客户端IP
      * @param request

@@ -11,7 +11,7 @@ import java.util.Date;
  * @Date 2025/5/23
  */
 @Data
-public class PermissionVO implements CommonVO{
+public class PermissionVO {
 
     private Integer id;
     private String name;

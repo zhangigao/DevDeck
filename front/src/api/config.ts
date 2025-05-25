@@ -19,14 +19,28 @@ api.interceptors.request.use(
     // 从localStorage获取token
     const token = localStorage.getItem('token');
     
-    // 如果有token则添加到请求头
-    if (token) {
-      config.headers['Authorization'] = token;
+    console.log('请求拦截器 - 从localStorage获取的token:', token);
+    console.log('请求拦截器 - token类型:', typeof token);
+    console.log('请求拦截器 - token长度:', token ? token.length : 0);
+    console.log('请求URL:', config.url);
+    console.log('请求方法:', config.method);
+    
+    // 如果有token且不为空则添加到请求头
+    if (token && token.trim() !== '') {
+      config.headers = config.headers || {};
+      config.headers['Authorization'] = `Bearer ${token}`;
+      console.log('请求拦截器 - 已设置Authorization头:', config.headers['Authorization']);
+    } else {
+      console.log('请求拦截器 - 没有找到有效token');
     }
+    
+    // 打印完整的请求头
+    console.log('请求拦截器 - 完整请求头:', JSON.stringify(config.headers, null, 2));
     
     return config;
   },
   (error) => {
+    console.error('请求拦截器错误:', error);
     return Promise.reject(error);
   }
 );
@@ -42,16 +56,16 @@ api.interceptors.response.use(
       
       // 401: 未登录或token过期
       if (res.code === 401) {
-        // 清除本地token
+        // 清除本地token和用户信息
         localStorage.removeItem('token');
+        localStorage.removeItem('user');
         
-        // 可以在这里触发登出操作
-        // store.dispatch(logout());
+        console.log('API响应401 - 清除用户状态并跳转到登录页');
         
-        // 重定向到登录页
-        setTimeout(() => {
-          window.location.href = '/login';
-        }, 1500);
+        // 立即重定向到登录页
+        window.location.href = '/auth/login';
+        
+        return Promise.reject(new Error('登录已过期，请重新登录'));
       }
       
       return Promise.reject(new Error(res.message || '未知错误'));
@@ -70,12 +84,14 @@ api.interceptors.response.use(
       switch (status) {
         case 401:
           errorMsg = '未授权，请重新登录';
-          // 清除本地token
+          // 清除本地token和用户信息
           localStorage.removeItem('token');
-          // 重定向到登录页
-          setTimeout(() => {
-            window.location.href = '/login';
-          }, 1500);
+          localStorage.removeItem('user');
+          
+          console.log('HTTP 401错误 - 清除用户状态并跳转到登录页');
+          
+          // 立即重定向到登录页
+          window.location.href = '/auth/login';
           break;
         case 403:
           errorMsg = '拒绝访问';

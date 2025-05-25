@@ -12,11 +12,12 @@ import java.util.List;
  * @Date 2025/5/24
  */
 @Data
-public class UserRoleVO implements CommonVO{
+public class UserDetailVO {
 
     private String uuid;
     private String email;
     private String nickName;
+    private String avatarUrl;
     private List<RoleVO> roles;
     private String createdBy;
     private Date createdAt;

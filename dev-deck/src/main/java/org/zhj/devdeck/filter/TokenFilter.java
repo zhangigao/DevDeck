@@ -6,7 +6,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -21,6 +23,7 @@ import org.zhj.devdeck.utils.UserContext;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Enumeration;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -28,6 +31,7 @@ import java.util.concurrent.TimeUnit;
  * @Author 86155
  * @Date 2025/5/24
  */
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class TokenFilter extends OncePerRequestFilter {
@@ -38,6 +42,10 @@ public class TokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        if (HttpMethod.OPTIONS.matches(request.getMethod())) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         try {
             // 排除登录与注册接口
             if (isLoginOrRegisterRequest(request)) {
@@ -76,13 +84,16 @@ public class TokenFilter extends OncePerRequestFilter {
 
     private boolean isLoginOrRegisterRequest(HttpServletRequest request) {
         return "/dev-deck/user/login".equals(request.getRequestURI())
+                || "/dev-deck/user/login/code".equals(request.getRequestURI())
                 || "/dev-deck/user/register".equals(request.getRequestURI())
                 || "/dev-deck/user/verification-code".equals(request.getRequestURI())
-                || "/dev-deck/user/captcha".equals(request.getRequestURI());
+                || "/dev-deck/user/captcha".equals(request.getRequestURI())
+                || request.getRequestURI().startsWith("/dev-deck/qiniu/callback");
     }
 
     private String extractToken(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
+        token = token.replace("Bearer ", "");
         if (!StringUtils.hasText(token)) {
             throw new AuthException(AuthErrorCode.MISSING_TOKEN.getDesc(), AuthErrorCode.MISSING_TOKEN);
         }

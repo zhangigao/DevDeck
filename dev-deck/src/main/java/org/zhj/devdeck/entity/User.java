@@ -65,13 +65,7 @@ public class User {
      */
     private String avatarUrl;
 
-    /**
-     * 
-     */
     private String githubId;
 
-    /**
-     * 
-     */
     private String githubLogin;
 }

@@ -11,13 +11,16 @@ import AppLayout from '@/layouts/AppLayout';
 
 // 管理后台页面
 import AdminLayout from '@/layouts/AdminLayout';
-import TestAdminPage from '@/pages/admin/TestAdminPage';
-import UserListPage from '@/pages/admin/UserListPage';
+import AdminHomePage from '@/pages/admin/AdminHomePage';
+import PermissionManagePage from '@/pages/admin/PermissionManagePage';
 import UserRolesPage from '@/pages/admin/UserRolesPage';
+import UserRoleManagePage from '@/pages/admin/UserRoleManagePage';
+import UserListPage from '@/pages/admin/UserListPage';
 import AvatarReviewPage from '@/pages/admin/AvatarReviewPage';
 
 // 社区页面
-import TestCommunityPage from '@/pages/community/TestCommunityPage';
+import CommunityPage from '@/pages/community/CommunityPage';
+import CommunityHomePage from '@/pages/community/CommunityHomePage';
 import PostDetailPage from '@/pages/community/PostDetailPage';
 
 // 权限控制组件
@@ -38,7 +41,8 @@ const router = createBrowserRouter([
       },
       
       // 社区模块路由
-      { path: 'community', element: <TestCommunityPage /> },
+      { path: 'community', element: <CommunityPage /> },
+      { path: 'community/home', element: <CommunityHomePage /> },
       { path: 'community/post/:postId', element: <PostDetailPage /> },
       // 其他社区页面可以在此添加
       
@@ -53,11 +57,12 @@ const router = createBrowserRouter([
     element: <AdminRoute><AdminLayout /></AdminRoute>,
     children: [
       { index: true, element: <Navigate to="/admin/dashboard" replace /> },
-      { path: 'dashboard', element: <TestAdminPage /> },
-      { path: 'user-list', element: <UserListPage /> },
-      { path: 'user-roles', element: <UserRolesPage /> },
+      { path: 'dashboard', element: <AdminHomePage /> },
+      { path: 'permissions', element: <PermissionManagePage /> },
+      { path: 'roles', element: <UserRolesPage /> },
+      { path: 'user-roles', element: <UserRoleManagePage /> },
+      { path: 'users', element: <UserListPage /> },
       { path: 'avatar-review', element: <AvatarReviewPage /> },
-      // 其他后台管理页面路由
     ],
   },
   // 404页面重定向到首页

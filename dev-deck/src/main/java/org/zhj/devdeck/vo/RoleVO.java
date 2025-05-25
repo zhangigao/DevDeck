@@ -12,15 +12,15 @@ import java.util.List;
  * @Date 2025/5/23
  */
 @Data
-public class RoleVO implements CommonVO{
+public class RoleVO {
 
     private Integer id;
     private String name;
     private String description;
-    private List<PermissionVO> permissions;
     private String createdBy;
     private Date createdAt;
     private String updatedBy;
     private Date updatedAt;
+    private List<PermissionVO> permissions;
 
 }

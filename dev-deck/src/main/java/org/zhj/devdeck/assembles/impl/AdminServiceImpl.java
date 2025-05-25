@@ -3,31 +3,25 @@ package org.zhj.devdeck.assembles.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.zhj.devdeck.assembles.AdminService;
-import org.zhj.devdeck.assembles.UserService;
 import org.zhj.devdeck.assembles.enums.RoleEnum;
 import org.zhj.devdeck.dto.BindRolePermissionDTO;
 import org.zhj.devdeck.dto.CreatePermissionDTO;
 import org.zhj.devdeck.dto.CreateRoleDTO;
+import org.zhj.devdeck.dto.UserPageDTO;
 import org.zhj.devdeck.entity.*;
-import org.zhj.devdeck.exception.QuizException;
 import org.zhj.devdeck.service.*;
 import org.zhj.devdeck.vo.PermissionVO;
 import org.zhj.devdeck.vo.RoleVO;
-import org.zhj.devdeck.vo.UserRoleVO;
+import org.zhj.devdeck.vo.UserDetailVO;
+import org.zhj.devdeck.vo.UserVO;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * @Author 86155
@@ -87,7 +81,9 @@ public class AdminServiceImpl implements AdminService {
                 vo.setUpdatedBy(uu.getNickname());
                 return vo;
             }
-            Set<Integer> ids = Set.of(Permission.getCreatedBy(), Permission.getUpdatedBy());
+            Set<Integer> ids = new HashSet<>();
+            ids.add(Permission.getCreatedBy());
+            ids.add(Permission.getUpdatedBy());
             List<User> users = usersService.listByIds(ids);
             users.forEach(user -> {
                 if(user.getId().equals(Permission.getCreatedBy())) {
@@ -131,7 +127,9 @@ public class AdminServiceImpl implements AdminService {
                 vo.setUpdatedBy(uu.getNickname());
                 return vo;
             }
-            Set<Integer> ids = Set.of(role.getCreatedBy(), role.getUpdatedBy());
+            Set<Integer> ids = new HashSet<>();
+            ids.add(role.getCreatedBy());
+            ids.add(role.getUpdatedBy());
             List<User> users = usersService.listByIds(ids);
             users.forEach(user -> {
                 if(user.getId().equals(role.getCreatedBy())) {
@@ -172,8 +170,12 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public UserRoleVO getUserDetail(String uuid) {
+    public UserDetailVO getUserDetail(String uuid) {
+        return usersService.getUserDetail(uuid);
+    }
 
-        return null;
+    @Override
+    public IPage<UserVO> listUser(UserPageDTO dto) {
+        return usersService.voPage(dto);
     }
 }

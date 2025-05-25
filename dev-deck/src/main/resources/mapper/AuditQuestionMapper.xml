@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zhj.devdeck.mapper.AuditQuestionMapper">
+
+    <resultMap id="BaseResultMap" type="org.zhj.devdeck.entity.AuditQuestion">
+            <result property="auditId" column="audit_id" jdbcType="BIGINT"/>
+            <result property="auditType" column="audit_type" jdbcType="VARCHAR"/>
+            <result property="status" column="status" jdbcType="VARCHAR"/>
+            <result property="submitUser" column="submit_user" jdbcType="BIGINT"/>
+            <result property="auditor" column="auditor" jdbcType="BIGINT"/>
+            <result property="auditTime" column="audit_time" jdbcType="TIMESTAMP"/>
+            <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+            <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+            <result property="questionId" column="question_id" jdbcType="BIGINT"/>
+            <result property="content" column="content" jdbcType="OTHER"/>
+            <result property="revision" column="revision" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        audit_id,audit_type,status,
+        submit_user,auditor,audit_time,
+        created_at,updated_at,question_id,
+        content,revision
+    </sql>
+</mapper>

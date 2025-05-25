@@ -51,118 +51,50 @@ const AdminLayout: React.FC = () => {
     {
       key: 'dashboard',
       icon: <DashboardOutlined />,
-      label: '仪表盘',
+      label: '管理面板',
       onClick: () => navigate('/admin/dashboard'),
     },
     {
-      key: 'user',
+      key: 'permissions',
+      icon: <SafetyOutlined />,
+      label: '权限管理',
+      onClick: () => navigate('/admin/permissions'),
+    },
+    {
+      key: 'roles',
+      icon: <SolutionOutlined />,
+      label: '角色管理',
+      onClick: () => navigate('/admin/roles'),
+    },
+    {
+      key: 'user-roles',
       icon: <TeamOutlined />,
-      label: '用户管理',
-      children: [
-        {
-          key: 'user-list',
-          label: '用户列表',
-          onClick: () => navigate('/admin/user-list'),
-        },
-        {
-          key: 'user-roles',
-          label: '角色管理',
-          onClick: () => navigate('/admin/user-roles'),
-        },
-        {
-          key: 'user-permissions',
-          label: '权限管理',
-          onClick: () => navigate('/admin/user-permissions'),
-        },
-      ],
+      label: '用户角色',
+      onClick: () => navigate('/admin/user-roles'),
     },
     {
-      key: 'content',
-      icon: <FileTextOutlined />,
-      label: '内容管理',
-      children: [
-        {
-          key: 'questions',
-          label: '题目管理',
-          onClick: () => navigate('/admin/questions'),
-        },
-        {
-          key: 'categories',
-          label: '分类管理',
-          onClick: () => navigate('/admin/categories'),
-        },
-        {
-          key: 'tags',
-          label: '标签管理',
-          onClick: () => navigate('/admin/tags'),
-        },
-      ],
+      key: 'users',
+      icon: <UserOutlined />,
+      label: '用户列表',
+      onClick: () => navigate('/admin/users'),
     },
     {
-      key: 'review',
+      key: 'avatar-review',
       icon: <AuditOutlined />,
-      label: '审核管理',
-      children: [
-        {
-          key: 'question-review',
-          label: '题目审核',
-          onClick: () => navigate('/admin/question-review'),
-        },
-        {
-          key: 'avatar-review',
-          label: '头像审核',
-          onClick: () => navigate('/admin/avatar-review'),
-        },
-        {
-          key: 'comment-review',
-          label: '评论审核',
-          onClick: () => navigate('/admin/comment-review'),
-        },
-      ],
+      label: '头像审核',
+      onClick: () => navigate('/admin/avatar-review'),
     },
     {
-      key: 'community',
+      key: 'question-review',
+      icon: <FileTextOutlined />,
+      label: '题目审核',
+      onClick: () => navigate('/admin/question-review'),
+    },
+    {
+      key: 'post-review',
       icon: <AppstoreOutlined />,
-      label: '社区管理',
-      children: [
-        {
-          key: 'posts',
-          label: '帖子管理',
-          onClick: () => navigate('/admin/posts'),
-        },
-        {
-          key: 'comments',
-          label: '评论管理',
-          onClick: () => navigate('/admin/comments'),
-        },
-        {
-          key: 'topics',
-          label: '话题管理',
-          onClick: () => navigate('/admin/topics'),
-        },
-      ],
-    },
-    {
-      key: 'system',
-      icon: <SettingOutlined />,
-      label: '系统设置',
-      children: [
-        {
-          key: 'settings',
-          label: '基础设置',
-          onClick: () => navigate('/admin/settings'),
-        },
-        {
-          key: 'logs',
-          label: '系统日志',
-          onClick: () => navigate('/admin/logs'),
-        },
-        {
-          key: 'ai-config',
-          label: 'AI配置',
-          onClick: () => navigate('/admin/ai-config'),
-        },
-      ],
+      label: '文章审核',
+      onClick: () => navigate('/admin/post-review'),
     },
   ];
 
@@ -180,7 +112,7 @@ const AdminLayout: React.FC = () => {
       icon: <SettingOutlined />,
       onClick: () => navigate('/admin/account-settings'),
     },
-    { type: 'divider' },
+    { type: 'divider' as const },
     {
       key: 'logout',
       label: '退出登录',
@@ -205,7 +137,6 @@ const AdminLayout: React.FC = () => {
       >
         <div className="flex items-center justify-center py-4">
           <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-start pl-4'} transition-all`}>
-            <img src="/logo.svg" alt="Logo" className="h-8" />
             {!collapsed && <span className="ml-2 text-lg font-bold text-primary-600">Dev-Deck Admin</span>}
           </div>
         </div>

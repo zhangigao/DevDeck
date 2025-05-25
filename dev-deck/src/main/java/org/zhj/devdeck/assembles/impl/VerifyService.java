@@ -49,13 +49,13 @@ public class VerifyService {
     private final StringRedisTemplate redisTemplate;
     private final EmailService emailService;
 
-    public String generateAndSendCode(String email, String captchaUuid, String captchaCode, Integer type , String ip) {
+    public void generateAndSendCode(String email, String captchaUuid, String captchaCode, Integer type , String ip) {
         if (!verifyCaptcha(captchaUuid, captchaCode)) {
             throw new QuizException("验证码错误");
         }
         Boolean flag = redisTemplate.opsForValue().setIfAbsent(RedisConstant.USER_LIMIT + email, "1", 60, TimeUnit.SECONDS);
         if (!flag) {
-            return "验证码发送太频繁，请稍后再试";
+            throw new QuizException("验证码发送太频繁，请稍后再试");
         }
         checkIpLimit(ip);
         checkSendLimit(email);
@@ -68,8 +68,6 @@ public class VerifyService {
         String redisKey = generateRedisKey(type,email);
         redisTemplate.opsForValue().set(redisKey, code.toString(), expirationMillis, TimeUnit.MILLISECONDS);
         emailService.sendVerificationCode(email, code.toString());
-        log.info("邮箱验证码发送成功：{}",code);
-        return code.toString();
     }
 
     private String generateRedisKey(Integer type, String email) {

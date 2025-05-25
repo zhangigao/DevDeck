@@ -1,8 +1,11 @@
 package org.zhj.devdeck.service;
 
-import org.springframework.stereotype.Service;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import org.zhj.devdeck.dto.UserPageDTO;
 import org.zhj.devdeck.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.zhj.devdeck.vo.UserDetailVO;
+import org.zhj.devdeck.vo.UserVO;
 
 import java.util.List;
 
@@ -14,4 +17,8 @@ import java.util.List;
 public interface UsersService extends IService<User> {
 
     List<User> getUserByRoleId(Integer code, Integer defaultUserTotal);
+
+    UserDetailVO getUserDetail(String uuid);
+
+    IPage<UserVO> voPage(UserPageDTO dto);
 }

@@ -10,10 +10,13 @@ import {
   HistoryOutlined,
   AppstoreOutlined,
   UserOutlined,
-  SettingOutlined,
   TeamOutlined,
-  QuestionCircleOutlined,
-  CommentOutlined
+  CommentOutlined,
+  DashboardOutlined,
+  SafetyOutlined,
+  CrownOutlined,
+  UsergroupAddOutlined,
+  AuditOutlined
 } from '@ant-design/icons';
 import { RootState } from '@/store';
 
@@ -77,11 +80,6 @@ const AppSidebar: React.FC = () => {
           icon: <UserOutlined />,
           label: <Link to="/profile">个人资料</Link>,
         },
-        {
-          key: '/settings',
-          icon: <SettingOutlined />,
-          label: <Link to="/settings">账户设置</Link>,
-        },
       ],
     },
   ];
@@ -105,30 +103,10 @@ const AppSidebar: React.FC = () => {
     },
   ];
 
-  // 通用菜单项（底部）
-  const commonMenuItems = [
-    {
-      key: 'help',
-      icon: <QuestionCircleOutlined />,
-      label: '帮助',
-      children: [
-        {
-          key: '/faq',
-          label: <Link to="/faq">常见问题</Link>,
-        },
-        {
-          key: '/about',
-          label: <Link to="/about">关于我们</Link>,
-        },
-      ],
-    },
-  ];
-
   // 组合所有菜单项
   const allMenuItems = [
     ...menuItems,
     ...(isAuthenticated ? authenticatedMenuItems : guestMenuItems),
-    ...commonMenuItems,
   ];
 
   // 获取当前选中的菜单项
@@ -162,9 +140,9 @@ const AppSidebar: React.FC = () => {
     if (pathParts.length === 0) return [];
     
     if (pathParts[0] === 'questions') return ['questions'];
-    if (pathParts[0] === 'profile' || pathParts[0] === 'settings') return ['user'];
-    if (pathParts[0] === 'login' || pathParts[0] === 'register') return ['auth'];
-    if (pathParts[0] === 'faq' || pathParts[0] === 'about') return ['help'];
+    if (pathParts[0] === 'admin') return ['admin'];
+    if (pathParts[0] === 'profile') return ['user'];
+    if (pathParts[0] === 'auth' && (pathParts[1] === 'login' || pathParts[1] === 'register')) return ['auth'];
     
     return [];
   };

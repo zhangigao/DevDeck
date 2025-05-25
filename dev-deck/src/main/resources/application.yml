@@ -23,7 +23,7 @@ spring:
     time-zone: GMT+8
   data:
     redis:
-      host: 127.0.0.1
+      host: 192.168.174.129
       port: 6379
       password: ${REDIS_PASSWORD}
       database: 0
@@ -48,3 +48,9 @@ mail:
   verification:
     template: ${MAIL_VERIFICATION_TEMPLATE:}
     subject: ${MAIL_VERIFICATION_SUBJECT:}
+qiniu:
+  upload:
+    accessKey: ${QINIU_ACCESS_KEY:}
+    secretKey: ${QINIU_SECRET_KEY:}
+    bucket: ${QINIU_BUCKET:}
+  domain: ${QINIU_DOMAIN:}

@@ -1,7 +1,13 @@
 package org.zhj.devdeck.mapper;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
+import org.zhj.devdeck.dto.UserPageDTO;
 import org.zhj.devdeck.entity.User;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.zhj.devdeck.vo.UserDetailVO;
+import org.zhj.devdeck.vo.UserVO;
 
 import java.util.List;
 
@@ -14,6 +20,11 @@ import java.util.List;
 public interface UserMapper extends BaseMapper<User> {
 
     List<User> getUserByRole(Integer code, Integer defaultUserTotal);
+
+    UserDetailVO getUserDetail(String uuid);
+
+    IPage<UserVO> voPage(@Param("page") Page<UserVO> page,
+                         @Param("query") UserPageDTO query);
 }
 
 

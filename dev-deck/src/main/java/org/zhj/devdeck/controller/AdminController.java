@@ -3,19 +3,21 @@ package org.zhj.devdeck.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import jakarta.annotation.Resource;
 import org.springframework.beans.BeanUtils;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.zhj.devdeck.assembles.AdminService;
 import org.zhj.devdeck.common.Result;
 import org.zhj.devdeck.dto.BindRolePermissionDTO;
 import org.zhj.devdeck.dto.CreatePermissionDTO;
 import org.zhj.devdeck.dto.CreateRoleDTO;
+import org.zhj.devdeck.dto.UserPageDTO;
 import org.zhj.devdeck.request.BindRolePermissionRequest;
 import org.zhj.devdeck.request.CreatePermissionRequest;
 import org.zhj.devdeck.request.CreateRoleRequest;
+import org.zhj.devdeck.request.UserPageRequest;
 import org.zhj.devdeck.vo.PermissionVO;
 import org.zhj.devdeck.vo.RoleVO;
-import org.zhj.devdeck.vo.UserRoleVO;
+import org.zhj.devdeck.vo.UserDetailVO;
+import org.zhj.devdeck.vo.UserVO;
 
 /**
  * 后台管理控制器
@@ -69,7 +71,14 @@ public class AdminController {
     }
 
     @GetMapping("/user/{uuid}")
-    public Result<UserRoleVO> getUser(@PathVariable("uuid") String uuid) {
+    public Result<UserDetailVO> getUser(@PathVariable("uuid") String uuid) {
         return Result.success(adminService.getUserDetail(uuid));
+    }
+
+    @PostMapping("/user/list")
+    public Result<IPage<UserVO>> listUser(@RequestBody UserPageRequest request) {
+        UserPageDTO dto = new UserPageDTO();
+        BeanUtils.copyProperties(request,dto);
+        return Result.success(adminService.listUser(dto));
     }
 }

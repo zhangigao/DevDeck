@@ -2,7 +2,8 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 // 用户类型定义
 export interface User {
-  id: number;
+  id?: number;
+  uuid: string;
   username: string;
   email: string;
   nickname?: string;
@@ -19,13 +20,30 @@ export interface AuthState {
 }
 
 // 初始状态
+const token = localStorage.getItem('token');
+let storedUser = null;
+
+try {
+  const userString = localStorage.getItem('user');
+  if (userString) {
+    storedUser = JSON.parse(userString);
+  }
+} catch (error) {
+  console.error('解析用户信息出错:', error);
+}
+
 const initialState: AuthState = {
-  isAuthenticated: false,
-  user: null,
-  token: localStorage.getItem('token'),
+  isAuthenticated: !!token, // 如果有token则设置为已认证
+  user: storedUser,
+  token: token,
   loading: false,
   error: null,
 };
+
+// 添加调试信息
+console.log('authSlice初始状态 - 从localStorage获取的token:', token);
+console.log('authSlice初始状态 - 从localStorage获取的用户信息:', storedUser);
+console.log('authSlice初始状态 - isAuthenticated:', !!token);
 
 // 创建 slice
 const authSlice = createSlice({
@@ -40,6 +58,7 @@ const authSlice = createSlice({
       state.loading = false;
       state.error = null;
       localStorage.setItem('token', action.payload.token);
+      localStorage.setItem('user', JSON.stringify(action.payload.user)); // 存储用户信息
     },
     // 登录失败
     loginFailure: (state, action: PayloadAction<string>) => {
@@ -48,6 +67,8 @@ const authSlice = createSlice({
       state.token = null;
       state.loading = false;
       state.error = action.payload;
+      localStorage.removeItem('token');
+      localStorage.removeItem('user'); // 移除用户信息
     },
     // 退出登录
     logout: (state) => {
@@ -57,11 +78,13 @@ const authSlice = createSlice({
       state.loading = false;
       state.error = null;
       localStorage.removeItem('token');
+      localStorage.removeItem('user'); // 移除用户信息
     },
     // 更新用户信息
     updateUserProfile: (state, action: PayloadAction<Partial<User>>) => {
       if (state.user) {
         state.user = { ...state.user, ...action.payload };
+        localStorage.setItem('user', JSON.stringify(state.user)); // 同步更新localStorage
       }
     },
     // 开始加载

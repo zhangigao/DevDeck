@@ -19,6 +19,7 @@ public enum ResultCode {
     INVALID_PARAMETER(400, "参数有误"),
     MISSING_PARAMETER(400, "缺少必要参数"),
     USERNAME_OR_PASSWORD_ERROR(401, "用户名或密码错误"),
+    EMAIL_NOT_REGISTERED(401, "邮箱未注册"),
 
 
 

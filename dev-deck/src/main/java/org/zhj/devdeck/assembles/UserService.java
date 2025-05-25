@@ -1,7 +1,9 @@
 package org.zhj.devdeck.assembles;
 
 import org.zhj.devdeck.dto.RegisterDTO;
+import org.zhj.devdeck.entity.User;
 import org.zhj.devdeck.response.CaptchaResponse;
+import org.zhj.devdeck.response.LoginResponse;
 
 /**
  * @Author 86155
@@ -17,7 +19,17 @@ public interface UserService {
 
     String register(RegisterDTO request);
 
-    String loginByPassword(String email, String password);
+    LoginResponse loginByPassword(String email, String password);
 
-    String loginByCode(String email, String code);
+    LoginResponse loginByCode(String email, String code);
+
+    void logout(Integer uid);
+
+    void updatePassword(String oldPassword, String newPassword);
+
+    String uploadToken(String uuid);
+    
+    void updateAvatar(User user);
+
+    void updateNickname(User user);
 }

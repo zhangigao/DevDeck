@@ -50,24 +50,41 @@ const LoginPage: React.FC = () => {
         password: values.password
       });
       
+      console.log('登录API响应:', response);
+      
       // API 响应拦截器会自动处理非200状态
-      const token = response.data.token;
+      const { token, uuid, email, nickname, avatarUrl, id } = response.data;
+      
+      if (!uuid) {
+        console.error('登录响应中缺少uuid字段:', response.data);
+        message.error('登录失败: 响应数据不完整');
+        return;
+      }
+      
+      // 先打印一下token，确认接收到了
+      console.log('登录成功，获取到token:', token);
+      console.log('登录成功，获取到完整用户信息:', { id, uuid, email, nickname, avatarUrl });
+      
       // 存储token到localStorage
       localStorage.setItem('token', token);
+      console.log('token已保存到localStorage');
       
-      // 设置全局axios默认请求头
-      axios.defaults.headers.common['Authorization'] = token;
+      // 构建完整的用户对象
+      const user = {
+        uuid,
+        username: values.username,
+        email: email || values.username,
+        nickname: nickname || '用户',
+        avatarUrl,
+        id // 可选，如果后端返回了
+      };
       
-      // 获取用户信息（实际项目中可能需要额外请求）
-      dispatch(login({
-        token,
-        user: {
-          id: 1, // 模拟数据，实际应从后端获取
-          username: values.username,
-          email: values.username,
-          nickname: '用户',
-        }
-      }));
+      // 保存用户信息
+      localStorage.setItem('user', JSON.stringify(user));
+      console.log('用户信息已保存到localStorage:', user);
+      
+      // 更新Redux状态
+      dispatch(login({ token, user }));
       
       message.success('登录成功');
       navigate('/');
@@ -83,66 +100,54 @@ const LoginPage: React.FC = () => {
   const onCodeFinish = async (values: any) => {
     setLoading(true);
     try {
-      // 获取邮箱验证码
-      await api.post('/user/verification-code', {
-        email: values.email,
-        captchaUuid,
-        captchaCode: values.captchaCode,
-        type: 2 // 登录
-      });
-      
-      message.success(`验证码已发送到 ${values.email}`);
-      
-      // 提交登录（实际项目中这里需要等用户输入验证码后再调用登录API）
-      /* 
-      const loginResponse = await api.post('/user/login-by-code', {
+      // 直接使用验证码登录
+      const response = await api.post('/user/login/code', {
         email: values.email,
         code: values.code
       });
       
-      const token = loginResponse.data.token;
-      localStorage.setItem('token', token);
-      axios.defaults.headers.common['Authorization'] = token;
+      console.log('验证码登录API响应:', response);
       
-      dispatch(login({
-        token,
-        user: {
-          id: 1,
-          username: 'user',
-          email: values.email,
-          nickname: '用户',
-        }
-      }));
+      // API 响应拦截器会自动处理非200状态
+      const { token, uuid, email: userEmail, nickname, avatarUrl, id } = response.data;
+      
+      if (!uuid) {
+        console.error('登录响应中缺少uuid字段:', response.data);
+        message.error('登录失败: 响应数据不完整');
+        return;
+      }
+      
+      // 先打印一下token，确认接收到了
+      console.log('验证码登录成功，获取到token:', token);
+      console.log('验证码登录成功，获取到完整用户信息:', { id, uuid, userEmail, nickname, avatarUrl });
+      
+      // 存储token到localStorage
+      localStorage.setItem('token', token);
+      console.log('token已保存到localStorage');
+      
+      // 构建完整的用户对象
+      const user = {
+        uuid,
+        username: userEmail,
+        email: userEmail,
+        nickname: nickname || '用户',
+        avatarUrl,
+        id // 可选，如果后端返回了
+      };
+      
+      // 保存用户信息
+      localStorage.setItem('user', JSON.stringify(user));
+      console.log('用户信息已保存到localStorage:', user);
+      
+      // 更新Redux状态
+      dispatch(login({ token, user }));
       
       message.success('登录成功');
       navigate('/');
-      */
-      
-      // 模拟API调用
-      setTimeout(() => {
-        // 存储token到localStorage
-        const mockToken = 'mock-token-for-code-login';
-        localStorage.setItem('token', mockToken);
-        
-        // 设置全局axios默认请求头
-        axios.defaults.headers.common['Authorization'] = mockToken;
-        
-        dispatch(login({
-          token: mockToken,
-          user: {
-            id: 1,
-            username: 'user',
-            email: values.email,
-            nickname: '用户',
-          }
-        }));
-        
-        message.success('登录成功');
-        navigate('/');
-        setLoading(false);
-      }, 1000);
     } catch (error) {
       console.error('验证码登录错误:', error);
+      // 错误处理已经在API拦截器中完成
+    } finally {
       setLoading(false);
     }
   };

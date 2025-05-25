@@ -262,3 +262,30 @@ COMMENT ON COLUMN users.avatar_url IS '头像';
 COMMENT ON COLUMN users.uuid IS '对外暴露';
 
 ALTER TABLE "users" OWNER TO postgres;
+
+-- 基础审核表（抽象公共字段）
+CREATE TABLE audits (
+    audit_id        BIGSERIAL PRIMARY KEY,
+    audit_type      VARCHAR(20) NOT NULL CHECK (audit_type IN ('avatar', 'question')),
+    status          VARCHAR(10) NOT NULL CHECK (status IN ('pending', 'approved', 'rejected')),
+    submit_user     BIGINT NOT NULL,
+    auditor         BIGINT,
+    audit_time      TIMESTAMPTZ,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- 头像审核扩展表
+CREATE TABLE audit_avatar (
+    CONSTRAINT audit_type CHECK (audit_type = 'avatar'),
+    avatar_url     TEXT NOT NULL UNIQUE,
+    original_hash  VARCHAR(64) NOT NULL  -- 防止重复提交
+) INHERITS (audits);
+
+-- 题目审核扩展表
+CREATE TABLE audit_question (
+    CONSTRAINT audit_type CHECK (audit_type = 'question'),
+    question_id    BIGINT,
+    content        JSONB NOT NULL,      -- 存储题目完整快照
+    revision       INTEGER NOT NULL     -- 版本号
+) INHERITS (audits);

@@ -6,10 +6,12 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.zhj.devdeck.entity.User;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.HexFormat;
 
 /**
  * JWT工具类
@@ -17,6 +19,7 @@ import java.util.Date;
  * @Author 86155
  * @Date 2025/5/19
  */
+@Slf4j
 public class JwtUtils {
 
     private static final String jwtSecret = "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437";
@@ -25,7 +28,7 @@ public class JwtUtils {
     private static final long EXPIRATION_TIME = 30 * 60 * 1000;
 
     private static SecretKey getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
+        byte[] keyBytes = HexFormat.of().parseHex(jwtSecret);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
@@ -56,6 +59,7 @@ public class JwtUtils {
             Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
+            log.error("Token验证失败: {}", e.getMessage());
             return false;
         }
     }

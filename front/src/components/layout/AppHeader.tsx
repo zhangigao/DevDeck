@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layout, Button, Avatar, Dropdown, Input, Space, Badge } from 'antd';
+import { Layout, Button, Avatar, Dropdown, Input, Space, Badge, message } from 'antd';
 import { 
   UserOutlined, 
   MenuFoldOutlined, 
@@ -13,7 +13,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { RootState } from '@/store';
 import { toggleSidebar } from '@/store/slices/uiSlice';
-import { logout } from '@/store/slices/authSlice';
+import { logout as logoutAction } from '@/store/slices/authSlice';
+import { logout as apiLogout } from '@/api/userApi';
 
 const { Header } = Layout;
 
@@ -29,9 +30,22 @@ const AppHeader: React.FC = () => {
   };
 
   // 处理退出登录
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate('/auth/login');
+  const handleLogout = async () => {
+    try {
+      // 调用退出登录API
+      await apiLogout();
+      
+      // 清除本地状态
+      dispatch(logoutAction());
+      message.success('退出登录成功');
+      navigate('/auth/login');
+    } catch (error) {
+      console.error('退出登录失败:', error);
+      
+      // 即使API失败，也执行本地登出
+      dispatch(logoutAction());
+      navigate('/auth/login');
+    }
   };
 
   // 未登录状态的菜单项
@@ -96,7 +110,12 @@ const AppHeader: React.FC = () => {
   );
 
   return (
-    <Header className="bg-white p-0 shadow-sm flex items-center justify-between pr-6">
+    <Header 
+      className={`bg-white p-0 shadow-sm flex items-center justify-between pr-6 fixed top-0 right-0 z-10 transition-all duration-200 ${
+        sidebarCollapsed ? 'left-[80px]' : 'left-[200px]'
+      }`}
+      style={{ height: 64 }}
+    >
       <div className="flex items-center">
         <Button 
           type="text" 
