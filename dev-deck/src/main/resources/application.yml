@@ -34,6 +34,8 @@ mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
     cache-enabled: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    log-prefix: dev-deck
   global-config:
     db-config:
       id-type: auto

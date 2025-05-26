@@ -24,8 +24,8 @@ public class JwtUtils {
 
     private static final String jwtSecret = "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437";
 
-    // token过期时间 - 30分钟
-    private static final long EXPIRATION_TIME = 30 * 60 * 1000;
+    // token过期时间 - 24小时
+    private static final long EXPIRATION_TIME = 24 * 60 * 60 * 1000;
 
     private static SecretKey getSigningKey() {
         byte[] keyBytes = HexFormat.of().parseHex(jwtSecret);

@@ -16,6 +16,7 @@ import PermissionManagePage from '@/pages/admin/PermissionManagePage';
 import UserRolesPage from '@/pages/admin/UserRolesPage';
 import UserRoleManagePage from '@/pages/admin/UserRoleManagePage';
 import UserListPage from '@/pages/admin/UserListPage';
+import UserManagePage from '@/pages/admin/UserManagePage';
 import AvatarReviewPage from '@/pages/admin/AvatarReviewPage';
 
 // 社区页面
@@ -61,7 +62,7 @@ const router = createBrowserRouter([
       { path: 'permissions', element: <PermissionManagePage /> },
       { path: 'roles', element: <UserRolesPage /> },
       { path: 'user-roles', element: <UserRoleManagePage /> },
-      { path: 'users', element: <UserListPage /> },
+      { path: 'users', element: <UserManagePage /> },
       { path: 'avatar-review', element: <AvatarReviewPage /> },
     ],
   },

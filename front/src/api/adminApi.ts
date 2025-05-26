@@ -38,6 +38,13 @@ export interface CreateRoleRequest {
 export interface BindRolePermissionRequest {
   roleId: number;
   permissionIds: number[];
+  permissionIdsToDelete?: number[];
+}
+
+export interface UpdateUserRolesRequest {
+  userUuid: string;
+  roleIds: number[];
+  roleIdsToDelete?: number[];
 }
 
 // 权限VO接口
@@ -135,6 +142,11 @@ export const bindRolePermission = async (data: BindRolePermissionRequest) => {
   return api.post('/admin/role/permission', data);
 };
 
+// 删除角色API (后端待实现)
+export const deleteRole = async (id: number) => {
+  return api.delete(`/admin/role/${id}`);
+};
+
 // 用户管理API
 export const getUserDetail = async (uuid: string) => {
   return api.get(`/admin/user/${uuid}`);
@@ -142,4 +154,8 @@ export const getUserDetail = async (uuid: string) => {
 
 export const getUserList = async (params: UserListParams) => {
   return api.post('/admin/user/list', params);
+};
+
+export const updateUserRoles = async (data: UpdateUserRolesRequest) => {
+  return api.post('/admin/user/roles', data);
 }; 

@@ -9,10 +9,12 @@ import org.zhj.devdeck.common.Result;
 import org.zhj.devdeck.dto.BindRolePermissionDTO;
 import org.zhj.devdeck.dto.CreatePermissionDTO;
 import org.zhj.devdeck.dto.CreateRoleDTO;
+import org.zhj.devdeck.dto.UpdateUserRolesDTO;
 import org.zhj.devdeck.dto.UserPageDTO;
 import org.zhj.devdeck.request.BindRolePermissionRequest;
 import org.zhj.devdeck.request.CreatePermissionRequest;
 import org.zhj.devdeck.request.CreateRoleRequest;
+import org.zhj.devdeck.request.UpdateUserRolesRequest;
 import org.zhj.devdeck.request.UserPageRequest;
 import org.zhj.devdeck.vo.PermissionVO;
 import org.zhj.devdeck.vo.RoleVO;
@@ -70,6 +72,11 @@ public class AdminController {
         return Result.success(adminService.bindRolePermission(dto));
     }
 
+    @DeleteMapping("/role/{id}")
+    public Result<String> deleteRole(@PathVariable("id") Integer id) {
+        return Result.success(adminService.deleteRole(id));
+    }
+
     @GetMapping("/user/{uuid}")
     public Result<UserDetailVO> getUser(@PathVariable("uuid") String uuid) {
         return Result.success(adminService.getUserDetail(uuid));
@@ -80,5 +87,12 @@ public class AdminController {
         UserPageDTO dto = new UserPageDTO();
         BeanUtils.copyProperties(request,dto);
         return Result.success(adminService.listUser(dto));
+    }
+
+    @PostMapping("/user/roles")
+    public Result<String> updateUserRoles(@RequestBody UpdateUserRolesRequest request) {
+        UpdateUserRolesDTO dto = new UpdateUserRolesDTO();
+        BeanUtils.copyProperties(request,dto);
+        return Result.success(adminService.updateUserRoles(dto));
     }
 }

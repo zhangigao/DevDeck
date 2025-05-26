@@ -66,19 +66,19 @@
             LIMIT #{defaultUserTotal}
     </select>
     <select id="getUserDetail" resultType="org.zhj.devdeck.vo.UserDetailVO" resultMap="UserDetailMap">
-        select u.uuid, u.email, u.nickname, u.avatar_url,u.created_at, u.updated_at,u.updated_by
+        select u.uuid, u.email, u.nickname, u.avatar_url,u.created_at, u.updated_at,
         r.id as role_id,
         r.name as role_name,
-        r.description as role_description
+        r.description as role_description,
         p.id as permission_id,
         p.name as permission_name,
         p.code as permission_code,
         p.description as permission_description
         FROM
-        users u JOIN user_roles ur ON u.id = ur.user_id
-        JOIN role r ON ur.role_id = r.id
-        JOIN role_permissions rp ON r.id = rp.role_id
-        JOIN permissions p ON rp.permission_id = p.id
+        users u LEFT JOIN user_roles ur ON u.id = ur.user_id
+        LEFT JOIN role r ON ur.role_id = r.id
+        LEFT JOIN role_permissions rp ON r.id = rp.role_id
+        LEFT JOIN permission p ON rp.permission_id = p.id
         WHERE
         u.uuid = #{uuid}
     </select>

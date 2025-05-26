@@ -1,24 +1,67 @@
-import { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { 
+  Card, 
+  Button, 
+  Radio, 
+  Checkbox, 
+  Input, 
+  Typography, 
+  Space, 
+  Tag, 
+  message, 
+  Spin, 
+  Empty,
+  Progress,
+  Tooltip,
+  Drawer,
+  Avatar,
+  List,
+  Divider
+} from 'antd';
+import { 
+  CheckCircleOutlined, 
+  CheckCircleFilled,
+  HeartOutlined, 
+  HeartFilled,
+  LeftOutlined, 
+  RightOutlined,
+  QuestionCircleOutlined,
+  BulbOutlined,
+  LinkOutlined,
+  RobotOutlined,
+  SendOutlined,
+  UserOutlined,
+  CloseOutlined
+} from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { Card, Typography, Spin, Empty, Radio, Checkbox, Input, Button, Space, message, Badge, Dropdown } from 'antd';
-import { RightOutlined, LeftOutlined, StarOutlined, StarFilled, CheckCircleFilled, QuestionCircleOutlined, WarningOutlined, MoreOutlined, CheckCircleOutlined, BulbOutlined, LinkOutlined } from '@ant-design/icons';
-import { useSwipeable } from 'react-swipeable';
-import { useSpring, animated } from 'react-spring';
-import ReactMarkdown from 'react-markdown';
 import { RootState } from '@/store';
 import { 
   fetchQuestionsStart, 
   fetchQuestionsSuccess, 
   fetchQuestionsFailure,
-  submitAnswer,
-  toggleFavorite,
   nextQuestion,
   prevQuestion,
+  submitAnswer,
+  toggleFavorite,
   QuestionType
 } from '@/store/slices/questionsSlice';
+import ReactMarkdown from 'react-markdown';
+import { useSpring, animated } from 'react-spring';
+import { useSwipeable } from 'react-swipeable';
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
+
+interface QuizPageProps {
+  categoryId?: string;
+}
+
+interface ChatMessage {
+  id: string;
+  type: 'user' | 'ai';
+  content: string;
+  timestamp: Date;
+}
 
 // 模拟获取题目数据
 const mockFetchQuestions = async (): Promise<any> => {
@@ -64,34 +107,28 @@ const mockFetchQuestions = async (): Promise<any> => {
           {
             id: 3,
             uuid: '550e8400-e29b-41d4-a716-446655440003',
-            title: 'HTTP请求方法',
-            content: '以下哪些是HTTP协议定义的请求方法?',
+            title: 'CSS Flexbox布局',
+            content: '以下哪些是CSS Flexbox的有效属性？（多选）',
             type: QuestionType.MultipleChoice,
             difficulty: 1,
             choices: [
-              { id: 'A', content: 'GET' },
-              { id: 'B', content: 'POST' },
-              { id: 'C', content: 'FETCH' },
-              { id: 'D', content: 'PUT' },
-              { id: 'E', content: 'SEND' },
-              { id: 'F', content: 'DELETE' },
+              { id: 'A', content: 'justify-content' },
+              { id: 'B', content: 'align-items' },
+              { id: 'C', content: 'flex-direction' },
+              { id: 'D', content: 'grid-template-columns' },
             ],
-            correctAnswer: ['A', 'B', 'D', 'F'],
-            hint: '考虑RESTful API常用的方法',
-            source: 'HTTP协议规范',
+            correctAnswer: ['A', 'B', 'C'],
+            hint: 'Grid和Flexbox是不同的布局系统',
+            source: 'MDN Web Docs',
             isOfficial: true,
-            submitCount: 389,
-            tags: ['HTTP', 'API', '网络协议'],
+            submitCount: 234,
+            tags: ['CSS', 'Flexbox', '布局'],
           },
-        ],
+        ]
       });
-    }, 1500);
+    }, 1000);
   });
 };
-
-interface QuizPageProps {
-  categoryId?: string;
-}
 
 const QuizPage: React.FC<QuizPageProps> = ({ categoryId }) => {
   const dispatch = useDispatch();
@@ -109,6 +146,12 @@ const QuizPage: React.FC<QuizPageProps> = ({ categoryId }) => {
   const [direction, setDirection] = useState<'left' | 'right' | null>(null);
   const [showAnswer, setShowAnswer] = useState(false);
   const [showHint, setShowHint] = useState(false);
+  
+  // AI对话框相关状态
+  const [aiDrawerVisible, setAiDrawerVisible] = useState(false);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [inputMessage, setInputMessage] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
 
   // 动画相关状态
   const [{ x }, api] = useSpring(() => ({ x: 0 }));
@@ -141,10 +184,8 @@ const QuizPage: React.FC<QuizPageProps> = ({ categoryId }) => {
     const fetchData = async () => {
       dispatch(fetchQuestionsStart());
       try {
-        // 在实际项目中，可以将 categoryId 传递给 API
         const response = await mockFetchQuestions();
         if (response.success) {
-          // 如果有分类 ID，可以在这里进行过滤
           const filteredQuestions = categoryId 
             ? response.data.filter((q: any) => q.tags.includes(categoryId))
             : response.data;
@@ -188,7 +229,6 @@ const QuizPage: React.FC<QuizPageProps> = ({ categoryId }) => {
         isCorrect = JSON.stringify([...userAnswer].sort()) === JSON.stringify([...currentQuestion.correctAnswer].sort());
         break;
       case QuestionType.TextAnswer:
-        // 文本答案比较复杂，这里简化处理
         isCorrect = userAnswer.includes(currentQuestion.correctAnswer.substring(0, 10));
         break;
       default:
@@ -240,6 +280,34 @@ const QuizPage: React.FC<QuizPageProps> = ({ categoryId }) => {
     handleNext();
   };
 
+  // AI对话相关函数
+  const handleSendMessage = async () => {
+    if (!inputMessage.trim()) return;
+
+    const userMessage: ChatMessage = {
+      id: Date.now().toString(),
+      type: 'user',
+      content: inputMessage,
+      timestamp: new Date(),
+    };
+
+    setChatMessages(prev => [...prev, userMessage]);
+    setInputMessage('');
+    setAiLoading(true);
+
+    // 模拟AI响应
+    setTimeout(() => {
+      const aiMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        type: 'ai',
+        content: `关于"${inputMessage}"，我来为您解答：\n\n这是一个很好的问题！基于当前题目的内容，我建议您可以从以下几个角度来思考：\n\n1. 理解核心概念\n2. 分析实际应用场景\n3. 对比相关技术\n\n您还有其他疑问吗？`,
+        timestamp: new Date(),
+      };
+      setChatMessages(prev => [...prev, aiMessage]);
+      setAiLoading(false);
+    }, 1500);
+  };
+
   // 渲染题目选项
   const renderOptions = () => {
     if (!currentQuestion) return null;
@@ -247,95 +315,98 @@ const QuizPage: React.FC<QuizPageProps> = ({ categoryId }) => {
     switch (currentQuestion.type) {
       case QuestionType.SingleChoice:
         return (
-          <Radio.Group
-            value={userAnswer}
-            onChange={(e) => setUserAnswer(e.target.value)}
-            disabled={submitted}
-            className="w-full"
-          >
-            <Space direction="vertical" className="w-full">
+          <div className="space-y-3">
+            <Radio.Group
+              value={userAnswer}
+              onChange={(e) => setUserAnswer(e.target.value)}
+              disabled={submitted}
+              className="w-full"
+            >
               {currentQuestion.choices?.map((choice) => (
-                <Radio 
-                  key={choice.id} 
-                  value={choice.id} 
-                  className={`w-full py-3 px-4 border rounded-lg transition-all duration-200 
-                    ${submitted && choice.id === currentQuestion.correctAnswer ? 'border-green-500 bg-green-50' : ''} 
-                    ${submitted && userAnswer === choice.id && choice.id !== currentQuestion.correctAnswer ? 'border-red-500 bg-red-50' : ''}
-                    ${!submitted ? 'hover:bg-gray-50 hover:border-primary-200 hover:shadow-sm' : ''}`
-                  }
-                >
-                  <div className="flex items-center">
-                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary-100 text-primary-700 font-medium mr-3">
-                      {choice.id}
-                    </span> 
-                    <span className="text-base">{choice.content}</span>
-                    {submitted && choice.id === currentQuestion.correctAnswer && (
-                      <CheckCircleFilled className="ml-2 text-green-500 text-lg" />
-                    )}
-                  </div>
-                </Radio>
-              ))}
-            </Space>
-          </Radio.Group>
-        );
-      
-      case QuestionType.MultipleChoice:
-        return (
-          <Checkbox.Group
-            value={userAnswer}
-            onChange={(values) => setUserAnswer(values)}
-            disabled={submitted}
-            className="w-full"
-          >
-            <Space direction="vertical" className="w-full">
-              {currentQuestion.choices?.map((choice) => {
-                const isCorrect = currentQuestion.correctAnswer.includes(choice.id);
-                const isSelected = userAnswer?.includes(choice.id);
-                
-                return (
-                  <Checkbox 
-                    key={choice.id} 
+                <div key={choice.id} className="w-full">
+                  <Radio 
                     value={choice.id} 
-                    className={`w-full py-3 px-4 border rounded-lg transition-all duration-200
-                      ${submitted && isCorrect ? 'border-green-500 bg-green-50' : ''}
-                      ${submitted && isSelected && !isCorrect ? 'border-red-500 bg-red-50' : ''}
-                      ${!submitted ? 'hover:bg-gray-50 hover:border-primary-200 hover:shadow-sm' : ''}`
+                    className={`w-full p-4 border-2 rounded-xl transition-all duration-300 hover:shadow-md
+                      ${submitted && choice.id === currentQuestion.correctAnswer ? 'border-green-400 bg-green-50 shadow-green-100' : ''} 
+                      ${submitted && userAnswer === choice.id && choice.id !== currentQuestion.correctAnswer ? 'border-red-400 bg-red-50 shadow-red-100' : ''}
+                      ${!submitted ? 'border-gray-200 hover:border-blue-300 hover:bg-blue-50' : ''}
+                      ${userAnswer === choice.id && !submitted ? 'border-blue-400 bg-blue-50' : ''}`
                     }
                   >
-                    <div className="flex items-center">
-                      <span className="flex items-center justify-center w-6 h-6 rounded-full bg-secondary-100 text-secondary-700 font-medium mr-3">
-                        {choice.id}
-                      </span>
-                      <span className="text-base">{choice.content}</span>
-                      {submitted && isCorrect && (
-                        <CheckCircleFilled className="ml-2 text-green-500 text-lg" />
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold mr-4 text-sm">
+                          {choice.id}
+                        </span> 
+                        <span className="text-base font-medium">{choice.content}</span>
+                      </div>
+                      {submitted && choice.id === currentQuestion.correctAnswer && (
+                        <CheckCircleFilled className="text-green-500 text-xl" />
+                      )}
+                    </div>
+                  </Radio>
+                </div>
+              ))}
+            </Radio.Group>
+          </div>
+        );
+
+      case QuestionType.MultipleChoice:
+        return (
+          <div className="space-y-3">
+            <Checkbox.Group
+              value={userAnswer}
+              onChange={setUserAnswer}
+              disabled={submitted}
+              className="w-full"
+            >
+              {currentQuestion.choices?.map((choice) => (
+                <div key={choice.id} className="w-full">
+                  <Checkbox 
+                    value={choice.id} 
+                    className={`w-full p-4 border-2 rounded-xl transition-all duration-300 hover:shadow-md
+                      ${submitted && currentQuestion.correctAnswer.includes(choice.id) ? 'border-green-400 bg-green-50 shadow-green-100' : ''} 
+                      ${submitted && userAnswer?.includes(choice.id) && !currentQuestion.correctAnswer.includes(choice.id) ? 'border-red-400 bg-red-50 shadow-red-100' : ''}
+                      ${!submitted ? 'border-gray-200 hover:border-blue-300 hover:bg-blue-50' : ''}
+                      ${userAnswer?.includes(choice.id) && !submitted ? 'border-blue-400 bg-blue-50' : ''}`
+                    }
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <span className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-green-500 to-teal-500 text-white font-bold mr-4 text-sm">
+                          {choice.id}
+                        </span> 
+                        <span className="text-base font-medium">{choice.content}</span>
+                      </div>
+                      {submitted && currentQuestion.correctAnswer.includes(choice.id) && (
+                        <CheckCircleFilled className="text-green-500 text-xl" />
                       )}
                     </div>
                   </Checkbox>
-                );
-              })}
-            </Space>
-          </Checkbox.Group>
+                </div>
+              ))}
+            </Checkbox.Group>
+          </div>
         );
       
       case QuestionType.TextAnswer:
         return (
           <div className="relative">
             <TextArea
-              rows={6}
+              rows={8}
               value={userAnswer}
               onChange={(e) => setUserAnswer(e.target.value)}
               disabled={submitted}
               placeholder="请输入您的答案..."
-              className="mb-4 p-4 text-base leading-relaxed rounded-lg"
-              autoSize={{ minRows: 6, maxRows: 12 }}
+              className="p-6 text-base leading-relaxed rounded-xl border-2 border-gray-200 focus:border-blue-400 transition-colors"
+              autoSize={{ minRows: 8, maxRows: 15 }}
             />
             {!submitted && (
-              <div className="absolute bottom-6 right-4 text-gray-400">
+              <div className="absolute bottom-4 right-4">
                 <Button 
                   type="text" 
                   onClick={() => setShowHint(!showHint)}
-                  className="text-secondary-500 hover:text-secondary-700"
+                  className="text-blue-500 hover:text-blue-700 font-medium"
                   icon={<QuestionCircleOutlined />}
                 >
                   查看提示
@@ -343,9 +414,12 @@ const QuizPage: React.FC<QuizPageProps> = ({ categoryId }) => {
               </div>
             )}
             {showHint && currentQuestion.hint && (
-              <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg mb-4 text-yellow-800">
-                <div className="font-medium mb-1">提示：</div>
-                <ReactMarkdown>{currentQuestion.hint}</ReactMarkdown>
+              <div className="mt-4 bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-200 p-6 rounded-xl">
+                <div className="flex items-center font-bold text-yellow-800 mb-2">
+                  <BulbOutlined className="mr-2 text-lg" />
+                  提示
+                </div>
+                <ReactMarkdown className="text-yellow-700">{currentQuestion.hint}</ReactMarkdown>
               </div>
             )}
           </div>
@@ -358,38 +432,48 @@ const QuizPage: React.FC<QuizPageProps> = ({ categoryId }) => {
 
   // 渲染题目难度
   const renderDifficulty = (difficulty: number) => {
-    switch (difficulty) {
-      case 1:
-        return <Text type="success">简单</Text>;
-      case 2:
-        return <Text type="warning">中等</Text>;
-      case 3:
-        return <Text type="danger">困难</Text>;
-      case 4:
-        return <Text type="danger" strong>地狱</Text>;
-      default:
-        return null;
-    }
+    const configs = {
+      1: { text: '简单', color: 'success', bg: 'bg-green-100', text_color: 'text-green-700' },
+      2: { text: '中等', color: 'warning', bg: 'bg-yellow-100', text_color: 'text-yellow-700' },
+      3: { text: '困难', color: 'error', bg: 'bg-red-100', text_color: 'text-red-700' },
+      4: { text: '地狱', color: 'error', bg: 'bg-purple-100', text_color: 'text-purple-700' },
+    };
+    
+    const config = configs[difficulty as keyof typeof configs];
+    if (!config) return null;
+    
+    return (
+      <span className={`px-3 py-1 rounded-full text-sm font-medium ${config.bg} ${config.text_color}`}>
+        {config.text}
+      </span>
+    );
   };
 
   // 渲染题目类型
   const renderQuestionType = (type: QuestionType) => {
-    switch (type) {
-      case QuestionType.SingleChoice:
-        return <Text type="secondary">单选题</Text>;
-      case QuestionType.MultipleChoice:
-        return <Text type="secondary">多选题</Text>;
-      case QuestionType.TextAnswer:
-        return <Text type="secondary">简答题</Text>;
-      default:
-        return null;
-    }
+    const configs = {
+      [QuestionType.SingleChoice]: { text: '单选题', bg: 'bg-blue-100', text_color: 'text-blue-700' },
+      [QuestionType.MultipleChoice]: { text: '多选题', bg: 'bg-purple-100', text_color: 'text-purple-700' },
+      [QuestionType.TextAnswer]: { text: '简答题', bg: 'bg-gray-100', text_color: 'text-gray-700' },
+    };
+    
+    const config = configs[type];
+    if (!config) return null;
+    
+    return (
+      <span className={`px-3 py-1 rounded-full text-sm font-medium ${config.bg} ${config.text_color}`}>
+        {config.text}
+      </span>
+    );
   };
 
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-[70vh]">
-        <Spin size="large" tip="加载题目中..." />
+        <div className="text-center">
+          <Spin size="large" />
+          <div className="mt-4 text-lg text-gray-600">正在加载题目...</div>
+        </div>
       </div>
     );
   }
@@ -410,179 +494,256 @@ const QuizPage: React.FC<QuizPageProps> = ({ categoryId }) => {
     );
   }
 
+  const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+
   return (
-    <div className="max-w-3xl mx-auto px-4">
-      <div className="mb-6 flex justify-between items-center">
-        <div className="flex items-center">
-          <div className="text-2xl font-bold text-gray-700 mr-4">
-            {currentQuestionIndex + 1}/{questions.length}
-          </div>
-          <div className="flex space-x-2">
+    <div className="max-w-4xl mx-auto p-6 min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      {/* 进度条和题目信息 */}
+      <div className="mb-8">
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex items-center space-x-4">
+            <span className="text-2xl font-bold text-gray-800">
+              {currentQuestionIndex + 1} / {questions.length}
+            </span>
             {renderQuestionType(currentQuestion.type)}
-            <Text type="secondary">·</Text>
             {renderDifficulty(currentQuestion.difficulty)}
           </div>
+          <div className="flex items-center space-x-2">
+            <Tooltip title="AI助手">
+              <Button 
+                type="primary" 
+                icon={<RobotOutlined />}
+                onClick={() => setAiDrawerVisible(true)}
+                className="bg-gradient-to-r from-purple-500 to-pink-500 border-0 hover:from-purple-600 hover:to-pink-600"
+              >
+                AI助手
+              </Button>
+            </Tooltip>
+            <Tooltip title={favorites.includes(currentQuestion.id) ? '取消收藏' : '收藏题目'}>
+              <Button 
+                type={favorites.includes(currentQuestion.id) ? 'primary' : 'default'}
+                icon={favorites.includes(currentQuestion.id) ? <HeartFilled /> : <HeartOutlined />}
+                onClick={handleFavorite}
+                className={favorites.includes(currentQuestion.id) ? 'bg-red-500 border-red-500 hover:bg-red-600' : ''}
+              />
+            </Tooltip>
+          </div>
         </div>
-        <div className="flex items-center">
-          <Badge 
-            count={favorites.length} 
-            size="small" 
-            offset={[-5, 5]}
-            className="mr-3"
-          >
-            <Button
-              type={favorites.includes(currentQuestion.id) ? "primary" : "default"}
-              shape="circle"
-              icon={favorites.includes(currentQuestion.id) ? <StarFilled className="text-yellow-400" /> : <StarOutlined />}
-              onClick={handleFavorite}
-              className={favorites.includes(currentQuestion.id) ? "bg-yellow-50 border-yellow-400" : ""}
-            />
-          </Badge>
-          <Dropdown menu={{ 
-            items: [
-              { 
-                key: 'skip', 
-                label: '跳过此题', 
-                icon: <RightOutlined />, 
-                onClick: handleSkip 
-              },
-              { 
-                key: 'favorite', 
-                label: favorites.includes(currentQuestion.id) ? '取消收藏' : '收藏此题', 
-                icon: favorites.includes(currentQuestion.id) ? <StarFilled className="text-yellow-400" /> : <StarOutlined />, 
-                onClick: handleFavorite 
-              },
-              { 
-                key: 'report', 
-                label: '报告问题', 
-                icon: <WarningOutlined /> 
-              },
-            ] 
-          }} placement="bottomRight">
-            <Button type="text" icon={<MoreOutlined />} />
-          </Dropdown>
+        <Progress 
+          percent={progress} 
+          showInfo={false} 
+          strokeColor={{
+            '0%': '#667eea',
+            '100%': '#764ba2',
+          }}
+          className="mb-2"
+        />
+        <div className="text-sm text-gray-500">
+          已完成 {Object.keys(userAnswers).length} 题，正确 {Object.values(userAnswers).filter(a => a.isCorrect).length} 题
         </div>
       </div>
 
+      {/* 题目卡片 */}
       <animated.div
         {...handlers}
         style={{ x, touchAction: 'pan-y' }}
-        className={`quiz-card transition-shadow ${direction ? 'shadow-xl' : ''}`}
+        className={`transition-all duration-300 ${direction ? 'scale-105 shadow-2xl' : ''}`}
       >
-        <Card className="h-full overflow-auto border-0 shadow-lg rounded-2xl">
-          <div className="mb-6">
-            <Title level={4} className="text-2xl font-bold">{currentQuestion.title}</Title>
-            <div className="markdown-content mt-4 text-lg text-gray-800">
-              <ReactMarkdown>{currentQuestion.content}</ReactMarkdown>
-            </div>
-          </div>
-
-          <div className="mb-6">
-            {renderOptions()}
-          </div>
-
-          {showAnswer && (
-            <div className="mb-6 p-5 bg-gray-50 rounded-lg border border-gray-200">
-              <Title level={5} className="flex items-center text-primary-600">
-                <CheckCircleOutlined className="mr-2" /> 参考答案
+        <Card className="border-0 shadow-xl rounded-3xl overflow-hidden bg-white/80 backdrop-blur-sm">
+          <div className="p-8">
+            {/* 题目标题和内容 */}
+            <div className="mb-8">
+              <Title level={3} className="text-2xl font-bold text-gray-800 mb-6 leading-relaxed">
+                {currentQuestion.title}
               </Title>
-              <div className="mb-3 bg-white p-4 rounded-lg">
-                {currentQuestion.type === QuestionType.SingleChoice && (
-                  <div className="flex items-center">
-                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-green-100 text-green-700 font-medium mr-3">
-                      {currentQuestion.correctAnswer}
+              <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed">
+                <ReactMarkdown>{currentQuestion.content}</ReactMarkdown>
+              </div>
+            </div>
+
+            {/* 题目选项 */}
+            <div className="mb-8">
+              {renderOptions()}
+            </div>
+
+            {/* 答案解析 */}
+            {showAnswer && (
+              <div className="mb-8 p-6 bg-gradient-to-r from-gray-50 to-blue-50 rounded-2xl border-2 border-gray-100">
+                <Title level={4} className="flex items-center text-blue-600 mb-4">
+                  <CheckCircleOutlined className="mr-3 text-xl" /> 参考答案
+                </Title>
+                <div className="bg-white p-4 rounded-xl border border-gray-200 mb-4">
+                  <ReactMarkdown className="text-gray-800">{currentQuestion.correctAnswer}</ReactMarkdown>
+                </div>
+                
+                {currentQuestion.hint && (
+                  <div className="mt-4">
+                    <Title level={5} className="flex items-center text-yellow-600 mb-2">
+                      <BulbOutlined className="mr-2" /> 解题提示
+                    </Title>
+                    <div className="bg-yellow-50 p-4 rounded-xl border border-yellow-200">
+                      <ReactMarkdown className="text-yellow-800">{currentQuestion.hint}</ReactMarkdown>
                     </div>
-                    <Text strong className="text-green-700">
-                      {currentQuestion.choices?.find(c => c.id === currentQuestion.correctAnswer)?.content}
-                    </Text>
                   </div>
                 )}
-                {currentQuestion.type === QuestionType.MultipleChoice && (
-                  <div>
-                    {currentQuestion.correctAnswer.map((answer) => (
-                      <div key={answer} className="flex items-center mb-2">
-                        <div className="flex items-center justify-center w-6 h-6 rounded-full bg-green-100 text-green-700 font-medium mr-3">
-                          {answer}
-                        </div>
-                        <Text strong className="text-green-700">
-                          {currentQuestion.choices?.find(c => c.id === answer)?.content}
-                        </Text>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {currentQuestion.type === QuestionType.TextAnswer && (
-                  <div className="text-green-700 bg-green-50 p-3 rounded-lg border border-green-100">
-                    <ReactMarkdown>{currentQuestion.correctAnswer}</ReactMarkdown>
+                
+                {currentQuestion.source && (
+                  <div className="mt-4 flex items-center text-gray-500 text-sm">
+                    <LinkOutlined className="mr-2" /> 
+                    <span>来源: {currentQuestion.source}</span>
                   </div>
                 )}
               </div>
-              {currentQuestion.hint && (
-                <div className="mt-4">
-                  <Title level={5} className="flex items-center text-yellow-600">
-                    <BulbOutlined className="mr-2" /> 提示
-                  </Title>
-                  <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-100">
-                    <ReactMarkdown>{currentQuestion.hint}</ReactMarkdown>
-                  </div>
-                </div>
-              )}
-              {currentQuestion.source && (
-                <div className="mt-4 text-gray-500 text-sm flex items-center">
-                  <LinkOutlined className="mr-1" /> 来源: {currentQuestion.source}
-                </div>
-              )}
-            </div>
-          )}
-
-          <div className="flex justify-between mt-8">
-            <Button 
-              onClick={handlePrev} 
-              disabled={currentQuestionIndex === 0}
-              icon={<LeftOutlined />}
-              size="large"
-              className="min-w-[100px]"
-            >
-              上一题
-            </Button>
-            
-            {!submitted ? (
-              <Button 
-                type="primary" 
-                onClick={handleSubmit} 
-                disabled={!userAnswer}
-                size="large"
-                className="min-w-[100px] bg-gradient-to-r from-primary-500 to-secondary-500 border-0 hover:from-primary-600 hover:to-secondary-600"
-              >
-                提交答案
-              </Button>
-            ) : (
-              <Button 
-                type="primary" 
-                onClick={handleNext} 
-                disabled={currentQuestionIndex === questions.length - 1}
-                size="large"
-                className="min-w-[100px] bg-gradient-to-r from-primary-500 to-secondary-500 border-0 hover:from-primary-600 hover:to-secondary-600"
-              >
-                下一题 <RightOutlined />
-              </Button>
             )}
+
+            {/* 操作按钮 */}
+            <div className="flex justify-between items-center">
+              <Button 
+                onClick={handlePrev} 
+                disabled={currentQuestionIndex === 0}
+                icon={<LeftOutlined />}
+                size="large"
+                className="min-w-[120px] h-12 rounded-xl font-medium"
+              >
+                上一题
+              </Button>
+              
+              <div className="flex space-x-4">
+                {!submitted ? (
+                  <Button 
+                    type="primary" 
+                    onClick={handleSubmit} 
+                    disabled={!userAnswer}
+                    size="large"
+                    className="min-w-[120px] h-12 rounded-xl font-medium bg-gradient-to-r from-blue-500 to-purple-500 border-0 hover:from-blue-600 hover:to-purple-600"
+                  >
+                    提交答案
+                  </Button>
+                ) : (
+                  <Button 
+                    type="primary" 
+                    onClick={handleNext} 
+                    disabled={currentQuestionIndex === questions.length - 1}
+                    size="large"
+                    className="min-w-[120px] h-12 rounded-xl font-medium bg-gradient-to-r from-green-500 to-teal-500 border-0 hover:from-green-600 hover:to-teal-600"
+                  >
+                    下一题 <RightOutlined />
+                  </Button>
+                )}
+              </div>
+            </div>
           </div>
         </Card>
       </animated.div>
 
-      <div className="text-center mt-6 mb-8 text-gray-500 text-sm">
+      {/* 滑动提示 */}
+      <div className="text-center mt-8 text-gray-400">
         <div className="flex justify-center items-center space-x-8">
           <div className="flex items-center">
-            <div className="w-10 h-1 bg-gray-200 rounded-full mr-2"></div>
-            <span>左滑跳过</span>
+            <div className="w-12 h-2 bg-gradient-to-r from-red-300 to-red-400 rounded-full mr-3"></div>
+            <span className="text-sm">左滑跳过</span>
           </div>
           <div className="flex items-center">
-            <div className="w-10 h-1 bg-yellow-200 rounded-full mr-2"></div>
-            <span>右滑收藏</span>
+            <div className="w-12 h-2 bg-gradient-to-r from-pink-300 to-pink-400 rounded-full mr-3"></div>
+            <span className="text-sm">右滑收藏</span>
           </div>
         </div>
       </div>
+
+      {/* AI对话抽屉 */}
+      <Drawer
+        title={
+          <div className="flex items-center">
+            <RobotOutlined className="mr-2 text-purple-500" />
+            <span>AI学习助手</span>
+          </div>
+        }
+        placement="right"
+        width={400}
+        onClose={() => setAiDrawerVisible(false)}
+        open={aiDrawerVisible}
+        extra={
+          <Button 
+            type="text" 
+            icon={<CloseOutlined />} 
+            onClick={() => setAiDrawerVisible(false)}
+          />
+        }
+      >
+        <div className="flex flex-col h-full">
+          {/* 聊天消息区域 */}
+          <div className="flex-1 overflow-y-auto mb-4 space-y-4">
+            {chatMessages.length === 0 ? (
+              <div className="text-center text-gray-500 mt-8">
+                <RobotOutlined className="text-4xl mb-4 text-purple-300" />
+                <p>你好！我是AI学习助手</p>
+                <p className="text-sm">有什么关于这道题的问题吗？</p>
+              </div>
+            ) : (
+              <List
+                dataSource={chatMessages}
+                renderItem={(message) => (
+                  <div className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'} mb-4`}>
+                    <div className={`flex items-start space-x-2 max-w-[80%] ${message.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
+                      <Avatar 
+                        icon={message.type === 'user' ? <UserOutlined /> : <RobotOutlined />}
+                        className={message.type === 'user' ? 'bg-blue-500' : 'bg-purple-500'}
+                      />
+                      <div className={`p-3 rounded-2xl ${
+                        message.type === 'user' 
+                          ? 'bg-blue-500 text-white rounded-br-sm' 
+                          : 'bg-gray-100 text-gray-800 rounded-bl-sm'
+                      }`}>
+                        <ReactMarkdown className="text-sm leading-relaxed">
+                          {message.content}
+                        </ReactMarkdown>
+                        <div className={`text-xs mt-1 ${message.type === 'user' ? 'text-blue-100' : 'text-gray-500'}`}>
+                          {message.timestamp.toLocaleTimeString()}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              />
+            )}
+            {aiLoading && (
+              <div className="flex justify-start mb-4">
+                <div className="flex items-start space-x-2">
+                  <Avatar icon={<RobotOutlined />} className="bg-purple-500" />
+                  <div className="bg-gray-100 p-3 rounded-2xl rounded-bl-sm">
+                    <Spin size="small" />
+                    <span className="ml-2 text-sm text-gray-600">AI正在思考...</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* 输入区域 */}
+          <div className="border-t pt-4">
+            <div className="flex space-x-2">
+              <Input
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                placeholder="输入你的问题..."
+                onPressEnter={handleSendMessage}
+                disabled={aiLoading}
+                className="rounded-xl"
+              />
+              <Button 
+                type="primary" 
+                icon={<SendOutlined />}
+                onClick={handleSendMessage}
+                disabled={!inputMessage.trim() || aiLoading}
+                className="rounded-xl bg-purple-500 border-purple-500 hover:bg-purple-600"
+              />
+            </div>
+            <div className="text-xs text-gray-400 mt-2">
+              按回车发送消息
+            </div>
+          </div>
+        </div>
+      </Drawer>
     </div>
   );
 };

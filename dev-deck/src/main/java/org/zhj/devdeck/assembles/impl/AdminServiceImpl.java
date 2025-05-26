@@ -12,6 +12,7 @@ import org.zhj.devdeck.assembles.enums.RoleEnum;
 import org.zhj.devdeck.dto.BindRolePermissionDTO;
 import org.zhj.devdeck.dto.CreatePermissionDTO;
 import org.zhj.devdeck.dto.CreateRoleDTO;
+import org.zhj.devdeck.dto.UpdateUserRolesDTO;
 import org.zhj.devdeck.dto.UserPageDTO;
 import org.zhj.devdeck.entity.*;
 import org.zhj.devdeck.service.*;
@@ -38,12 +39,14 @@ public class AdminServiceImpl implements AdminService {
     private final RoleService roleService;
     private final UsersService usersService;
     private final RolePermissionsService rolePermissionsService;
+    private final UserRolesService userRolesService;
 
     AdminServiceImpl(PermissionService permissionService, RoleService roleService, UserRolesService userRolesService, UsersService usersService, RolePermissionsService rolePermissionsService) {
         this.permissionService = permissionService;
         this.roleService = roleService;
         this.usersService = usersService;
         this.rolePermissionsService = rolePermissionsService;
+        this.userRolesService = userRolesService;
         LambdaQueryWrapper<UserRoles> wrapper = new LambdaQueryWrapper<>();
         List<User> userList = usersService.getUserByRoleId(RoleEnum.SYSTEM_ADMIN.getCode(), DEFAULT_USER_TOTAL);
         userList.forEach(user -> {
@@ -118,28 +121,8 @@ public class AdminServiceImpl implements AdminService {
         Page<Role> page = new Page<>(pageNo, pageSize);
         roleService.page(page);
         return page.convert(role -> {
-            RoleVO vo = new RoleVO();
-            BeanUtils.copyProperties(role, vo);
-            User cu = ADMIN_ROLES.get(role.getCreatedBy());
-            User uu = ADMIN_ROLES.get(role.getUpdatedBy());
-            if(Objects.nonNull(cu)) {
-                vo.setCreatedBy(cu.getNickname());
-                vo.setUpdatedBy(uu.getNickname());
-                return vo;
-            }
-            Set<Integer> ids = new HashSet<>();
-            ids.add(role.getCreatedBy());
-            ids.add(role.getUpdatedBy());
-            List<User> users = usersService.listByIds(ids);
-            users.forEach(user -> {
-                if(user.getId().equals(role.getCreatedBy())) {
-                    vo.setCreatedBy(user.getNickname());
-                }
-                if(user.getId().equals(role.getUpdatedBy())) {
-                    vo.setUpdatedBy(user.getNickname());
-                }
-            });
-            return vo;
+            // 直接调用getRoleDetail获取完整的角色信息（包含权限）
+            return roleService.getRoleDetail(role.getId());
         });
     }
 
@@ -161,12 +144,23 @@ public class AdminServiceImpl implements AdminService {
             rolePermissionsService.saveOrUpdateBatch(rolePermissions);
         }
         if(!CollectionUtils.isEmpty(dto.getPermissionIdsToDelete())) {
-            LambdaQueryWrapper<RolePermissions> wrapper = new LambdaQueryWrapper<>();
-            wrapper.in(RolePermissions::getPermissionId, dto.getPermissionIdsToDelete());
-            wrapper.eq(RolePermissions::getRoleId, dto.getRoleId());
-            rolePermissionsService.remove(wrapper);
+            rolePermissionsService.deletePermission(dto);
         }
         return "操作成功";
+    }
+
+    @Override
+    public String deleteRole(Integer id) {
+        // 先删除角色权限关联
+        LambdaQueryWrapper<RolePermissions> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(RolePermissions::getRoleId, id);
+        rolePermissionsService.remove(wrapper);
+        
+        // 删除角色
+        if (roleService.removeById(id)) {
+            return "删除成功";
+        }
+        return "删除失败，请联系管理员";
     }
 
     @Override
@@ -177,5 +171,40 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public IPage<UserVO> listUser(UserPageDTO dto) {
         return usersService.voPage(dto);
+    }
+
+    @Override
+    public String updateUserRoles(UpdateUserRolesDTO dto) {
+        // 根据UUID获取用户ID
+        LambdaQueryWrapper<User> userWrapper = new LambdaQueryWrapper<>();
+        userWrapper.eq(User::getUuid, dto.getUserUuid());
+        User user = usersService.getOne(userWrapper);
+        
+        if (user == null) {
+            return "用户不存在";
+        }
+        
+        Integer userId = user.getId();
+        
+        // 删除指定的角色
+        if (!CollectionUtils.isEmpty(dto.getRoleIdsToDelete())) {
+            LambdaQueryWrapper<UserRoles> deleteWrapper = new LambdaQueryWrapper<>();
+            deleteWrapper.eq(UserRoles::getUserId, userId);
+            deleteWrapper.in(UserRoles::getRoleId, dto.getRoleIdsToDelete());
+            userRolesService.remove(deleteWrapper);
+        }
+        
+        // 添加新角色
+        if (!CollectionUtils.isEmpty(dto.getRoleIds())) {
+            List<UserRoles> userRolesList = dto.getRoleIds().stream().map(roleId -> {
+                UserRoles userRoles = new UserRoles();
+                userRoles.setUserId(userId);
+                userRoles.setRoleId(roleId);
+                return userRoles;
+            }).toList();
+            userRolesService.saveOrUpdateBatch(userRolesList);
+        }
+        
+        return "用户角色更新成功";
     }
 }

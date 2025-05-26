@@ -21,7 +21,7 @@ public interface UserMapper extends BaseMapper<User> {
 
     List<User> getUserByRole(Integer code, Integer defaultUserTotal);
 
-    UserDetailVO getUserDetail(String uuid);
+    UserDetailVO getUserDetail(@Param("uuid") String uuid);
 
     IPage<UserVO> voPage(@Param("page") Page<UserVO> page,
                          @Param("query") UserPageDTO query);

@@ -20,4 +20,10 @@
         created_by,created_at,updated_by,
         updated_at,deleted_at
     </sql>
+    <delete id="deletePermissions">
+        delete from role_permissions where role_id = #{dto.roleId} and permission_id in
+        <foreach collection="dto.permissionIdsToDelete" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
 </mapper>

@@ -45,9 +45,9 @@
         p.id as permission_id,p.name as permission_name,p.description as permission_description,
         p.created_by as permission_created_by,p.created_at as permission_created_at,
         p.updated_by as permission_updated_by,p.updated_at as permission_updated_at,
-        p.deleted_atas permission_deleted_at
+        p.deleted_at as permission_deleted_at
         from role r
-        left join role_permission rp on r.id = rp.role_id
+        left join role_permissions rp on r.id = rp.role_id
         left join permission p on rp.permission_id = p.id
         where r.id = #{id}
         and r.deleted_at is null

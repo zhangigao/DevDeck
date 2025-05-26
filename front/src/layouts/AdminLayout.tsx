@@ -14,9 +14,10 @@ import {
   LogoutOutlined,
   AppstoreOutlined,
   SolutionOutlined,
-  TagOutlined
+  TagOutlined,
+  HomeOutlined
 } from '@ant-design/icons';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation, Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store';
 import { logout } from '@/store/slices/authSlice';
@@ -137,7 +138,15 @@ const AdminLayout: React.FC = () => {
       >
         <div className="flex items-center justify-center py-4">
           <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-start pl-4'} transition-all`}>
-            {!collapsed && <span className="ml-2 text-lg font-bold text-primary-600">Dev-Deck Admin</span>}
+            {collapsed ? (
+              <Link to="/" className="text-primary-600 hover:text-primary-700 transition-colors cursor-pointer">
+                <HomeOutlined className="text-xl" />
+              </Link>
+            ) : (
+              <Link to="/" className="ml-2 text-lg font-bold text-primary-600 hover:text-primary-700 transition-colors cursor-pointer">
+                Dev-Deck Admin
+              </Link>
+            )}
           </div>
         </div>
         <Menu

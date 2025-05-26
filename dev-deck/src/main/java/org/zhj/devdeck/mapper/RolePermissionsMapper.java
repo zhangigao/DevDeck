@@ -1,7 +1,11 @@
 package org.zhj.devdeck.mapper;
 
+import org.apache.ibatis.annotations.Param;
+import org.zhj.devdeck.dto.BindRolePermissionDTO;
 import org.zhj.devdeck.entity.RolePermissions;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+
+import java.util.List;
 
 /**
 * @author 86155
@@ -11,6 +15,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 */
 public interface RolePermissionsMapper extends BaseMapper<RolePermissions> {
 
+    void deletePermissions(@Param("dto") BindRolePermissionDTO dto);
 }
 
 

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.zhj.devdeck.dto.BindRolePermissionDTO;
 import org.zhj.devdeck.dto.CreatePermissionDTO;
 import org.zhj.devdeck.dto.CreateRoleDTO;
+import org.zhj.devdeck.dto.UpdateUserRolesDTO;
 import org.zhj.devdeck.dto.UserPageDTO;
 import org.zhj.devdeck.vo.PermissionVO;
 import org.zhj.devdeck.vo.RoleVO;
@@ -27,7 +28,11 @@ public interface AdminService {
 
     String bindRolePermission(BindRolePermissionDTO dto);
 
+    String deleteRole(Integer id);
+
     UserDetailVO getUserDetail(String uuid);
 
     IPage<UserVO> listUser(UserPageDTO dto);
+
+    String updateUserRoles(UpdateUserRolesDTO dto);
 }
