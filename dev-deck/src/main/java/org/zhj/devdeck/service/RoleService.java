@@ -1,6 +1,6 @@
 package org.zhj.devdeck.service;
 
-import org.zhj.devdeck.entity.Role;
+import org.zhj.devdeck.model.Role;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.zhj.devdeck.vo.RoleVO;
 

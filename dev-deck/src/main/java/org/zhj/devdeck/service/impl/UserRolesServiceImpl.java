@@ -1,7 +1,7 @@
 package org.zhj.devdeck.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.zhj.devdeck.entity.UserRoles;
+import org.zhj.devdeck.model.UserRoles;
 import org.zhj.devdeck.service.UserRolesService;
 import org.zhj.devdeck.mapper.UserRolesMapper;
 import org.springframework.stereotype.Service;

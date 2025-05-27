@@ -1,4 +1,4 @@
-package org.zhj.devdeck.entity;
+package org.zhj.devdeck.model;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;

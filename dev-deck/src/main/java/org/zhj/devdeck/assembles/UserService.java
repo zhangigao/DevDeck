@@ -1,7 +1,7 @@
 package org.zhj.devdeck.assembles;
 
 import org.zhj.devdeck.dto.RegisterDTO;
-import org.zhj.devdeck.entity.User;
+import org.zhj.devdeck.model.User;
 import org.zhj.devdeck.response.CaptchaResponse;
 import org.zhj.devdeck.response.LoginResponse;
 

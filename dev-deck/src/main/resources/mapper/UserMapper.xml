@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.zhj.devdeck.mapper.UserMapper">
 
-    <resultMap id="BaseResultMap" type="org.zhj.devdeck.entity.User">
+    <resultMap id="BaseResultMap" type="org.zhj.devdeck.model.User">
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="uuid" column="uuid" jdbcType="VARCHAR"/>
             <result property="email" column="email" jdbcType="VARCHAR"/>
@@ -57,7 +57,7 @@
         github_login
     </sql>
 
-    <select id="getUserByRole" resultType="org.zhj.devdeck.entity.User">
+    <select id="getUserByRole" resultType="org.zhj.devdeck.model.User">
         select u.*
             FROM
             users u JOIN user_roles ur ON u.id = ur.user_id

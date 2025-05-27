@@ -1,15 +1,12 @@
 package org.zhj.devdeck.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import org.zhj.devdeck.dto.BindRolePermissionDTO;
-import org.zhj.devdeck.entity.RolePermissions;
+import org.zhj.devdeck.model.RolePermissions;
 import org.zhj.devdeck.service.RolePermissionsService;
 import org.zhj.devdeck.mapper.RolePermissionsMapper;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
 * @author 86155

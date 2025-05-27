@@ -6,7 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.zhj.devdeck.dto.UserPageDTO;
-import org.zhj.devdeck.entity.User;
+import org.zhj.devdeck.model.User;
 import org.zhj.devdeck.mapper.UserMapper;
 import org.zhj.devdeck.service.UsersService;
 import org.zhj.devdeck.vo.UserDetailVO;

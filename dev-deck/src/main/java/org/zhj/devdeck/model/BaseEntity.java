@@ -1,4 +1,4 @@
-package org.zhj.devdeck.entity;
+package org.zhj.devdeck.model;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;

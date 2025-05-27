@@ -127,6 +127,7 @@ CREATE TABLE "question"
     source          VARCHAR(255),
     is_official     BOOLEAN                                  NOT NULL,
     is_enabled      BOOLEAN                                  NOT NULL,
+    category_id     INTEGER                                  NOT NULL,
     created_by      INTEGER                                  NOT NULL,
     created_at      TIMESTAMP                                NOT NULL,
     updated_at      TIMESTAMP                                NOT NULL,
@@ -149,6 +150,7 @@ COMMENT ON COLUMN question.hint IS '解题提示';
 COMMENT ON COLUMN question.source IS '题目来源';
 COMMENT ON COLUMN question.is_official IS '是否官方题目';
 COMMENT ON COLUMN question.is_enabled IS '是否启用';
+COMMENT ON COLUMN question.category_id IS '分类ID';
 COMMENT ON COLUMN question.created_by IS '创建人ID';
 COMMENT ON COLUMN question.created_at IS '创建日期时间';
 COMMENT ON COLUMN question.updated_at IS '修改日期时间';
@@ -289,3 +291,81 @@ CREATE TABLE audit_question (
     content        JSONB NOT NULL,      -- 存储题目完整快照
     revision       INTEGER NOT NULL     -- 版本号
 ) INHERITS (audits);
+
+
+-- 创建收藏表序列
+CREATE SEQUENCE question_favorite_id_seq
+    INCREMENT 1
+    MINVALUE 1
+    MAXVALUE 2147483647
+    START 1
+    CACHE 1;
+
+-- 题目收藏表
+CREATE TABLE "question_favorite"
+(
+    id          INTEGER DEFAULT nextval('question_favorite_id_seq') NOT NULL,
+    user_id     INTEGER                                            NOT NULL,
+    question_id INTEGER                                            NOT NULL,
+    created_by  INTEGER                                            NOT NULL,
+    created_at  TIMESTAMP                                          NOT NULL,
+    updated_at  TIMESTAMP                                          NOT NULL,
+    deleted_at  TIMESTAMP,
+    updated_by  INTEGER                                            NOT NULL,
+    CONSTRAINT question_favorite_pkey PRIMARY KEY (id)
+) TABLESPACE pg_default;
+
+COMMENT ON COLUMN question_favorite.id IS '自增主键';
+COMMENT ON COLUMN question_favorite.user_id IS '用户ID';
+COMMENT ON COLUMN question_favorite.question_id IS '题目ID';
+COMMENT ON COLUMN question_favorite.created_by IS '创建人ID';
+COMMENT ON COLUMN question_favorite.created_at IS '创建日期时间';
+COMMENT ON COLUMN question_favorite.updated_at IS '修改日期时间';
+COMMENT ON COLUMN question_favorite.deleted_at IS '删除日期时间';
+COMMENT ON COLUMN question_favorite.updated_by IS '修改人ID';
+
+
+
+-- 创建唯一索引，防止重复收藏
+CREATE UNIQUE INDEX uk_user_question_favorite ON public.question_favorite USING btree (user_id, question_id);
+
+ALTER TABLE "question_favorite" OWNER TO postgres;
+
+-- 添加外键约束
+ALTER TABLE question ADD CONSTRAINT fk_question_category
+    FOREIGN KEY (category_id) REFERENCES category(id);
+
+ALTER TABLE question_favorite ADD CONSTRAINT fk_favorite_user
+    FOREIGN KEY (user_id) REFERENCES users(id);
+
+ALTER TABLE question_favorite ADD CONSTRAINT fk_favorite_question
+    FOREIGN KEY (question_id) REFERENCES question(id);
+
+-- 收藏表
+create table "question_favorite"
+(
+    id  	integer default nextval('question_favorite_id_seq'::regclass) not null,
+    user_id  	integer not null,
+    question_id  	integer not null,
+    created_by  	integer not null,
+    created_at  	timestamp not null,
+    updated_at  	timestamp not null,
+    deleted_at  	timestamp,
+    updated_by  	integer not null,
+    constraint question_favorite_pkey primary key (id),
+    constraint fk_favorite_user foreign key (user_id) references users(id),
+    constraint fk_favorite_question foreign key (question_id) references question(id)
+
+) tablespace pg_default;
+CREATE UNIQUE INDEX uk_user_question_favorite ON public.question_favorite USING btree (user_id, question_id);
+
+comment on column question_favorite.id is '自增主键';
+comment on column question_favorite.user_id is '用户ID';
+comment on column question_favorite.question_id is '题目ID';
+comment on column question_favorite.created_by is '创建人ID';
+comment on column question_favorite.created_at is '创建日期时间';
+comment on column question_favorite.updated_at is '修改日期时间';
+comment on column question_favorite.deleted_at is '删除日期时间';
+comment on column question_favorite.updated_by is '修改人ID';
+
+alter table "question_favorite" owner to postgres;

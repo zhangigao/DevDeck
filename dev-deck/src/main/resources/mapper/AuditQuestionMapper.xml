@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.zhj.devdeck.mapper.AuditQuestionMapper">
 
-    <resultMap id="BaseResultMap" type="org.zhj.devdeck.entity.AuditQuestion">
+    <resultMap id="BaseResultMap" type="org.zhj.devdeck.model.AuditQuestion">
             <result property="auditId" column="audit_id" jdbcType="BIGINT"/>
             <result property="auditType" column="audit_type" jdbcType="VARCHAR"/>
             <result property="status" column="status" jdbcType="VARCHAR"/>

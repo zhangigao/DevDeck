@@ -1,14 +1,11 @@
 package org.zhj.devdeck.service.impl;
 
 import com.qiniu.util.Auth;
-import com.qiniu.util.StringMap;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.zhj.devdeck.entity.User;
 import org.zhj.devdeck.exception.QuizException;
-import org.zhj.devdeck.utils.UserContext;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;

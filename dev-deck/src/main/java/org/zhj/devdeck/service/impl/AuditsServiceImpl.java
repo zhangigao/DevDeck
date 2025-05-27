@@ -1,7 +1,7 @@
 package org.zhj.devdeck.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.zhj.devdeck.entity.Audits;
+import org.zhj.devdeck.model.Audits;
 import org.zhj.devdeck.service.AuditsService;
 import org.zhj.devdeck.mapper.AuditsMapper;
 import org.springframework.stereotype.Service;

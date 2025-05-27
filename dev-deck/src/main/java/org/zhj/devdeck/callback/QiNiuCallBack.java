@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.zhj.devdeck.common.QiniuAuditResult;
-import org.zhj.devdeck.entity.AuditAvatar;
+import org.zhj.devdeck.model.AuditAvatar;
 import org.zhj.devdeck.enums.AuditEnum;
 import org.zhj.devdeck.service.AuditAvatarService;
 import org.zhj.devdeck.service.UsersService;

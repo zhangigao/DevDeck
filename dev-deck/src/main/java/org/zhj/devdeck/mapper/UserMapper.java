@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import org.zhj.devdeck.dto.UserPageDTO;
-import org.zhj.devdeck.entity.User;
+import org.zhj.devdeck.model.User;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.zhj.devdeck.vo.UserDetailVO;
 import org.zhj.devdeck.vo.UserVO;

@@ -15,7 +15,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.zhj.devdeck.common.Result;
 import org.zhj.devdeck.constant.RedisConstant;
-import org.zhj.devdeck.entity.User;
+import org.zhj.devdeck.model.User;
 import org.zhj.devdeck.enums.AuthErrorCode;
 import org.zhj.devdeck.exception.AuthException;
 import org.zhj.devdeck.utils.JwtUtils;
@@ -23,7 +23,6 @@ import org.zhj.devdeck.utils.UserContext;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Enumeration;
 import java.util.concurrent.TimeUnit;
 
 /**

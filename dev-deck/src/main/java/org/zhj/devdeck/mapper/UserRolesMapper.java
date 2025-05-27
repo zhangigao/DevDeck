@@ -1,6 +1,6 @@
 package org.zhj.devdeck.mapper;
 
-import org.zhj.devdeck.entity.UserRoles;
+import org.zhj.devdeck.model.UserRoles;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**

@@ -1,6 +1,6 @@
 package org.zhj.devdeck.service;
 
-import org.zhj.devdeck.entity.AuditQuestion;
+import org.zhj.devdeck.model.AuditQuestion;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**

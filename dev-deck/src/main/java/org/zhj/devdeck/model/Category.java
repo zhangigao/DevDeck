@@ -1,9 +1,8 @@
-package org.zhj.devdeck.entity;
+package org.zhj.devdeck.model;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.util.Date;
 import lombok.Data;
 
 /**

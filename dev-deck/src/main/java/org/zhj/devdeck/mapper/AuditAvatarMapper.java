@@ -1,6 +1,6 @@
 package org.zhj.devdeck.mapper;
 
-import org.zhj.devdeck.entity.AuditAvatar;
+import org.zhj.devdeck.model.AuditAvatar;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**

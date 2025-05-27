@@ -1,8 +1,7 @@
-package org.zhj.devdeck.entity;
+package org.zhj.devdeck.model;
 
 import com.baomidou.mybatisplus.annotation.*;
 
-import java.util.Date;
 import lombok.Data;
 
 /**
@@ -50,6 +49,11 @@ public class Question extends BaseEntity{
     private Object correctAnswer;
 
     /**
+     * 选项数据 (JSON格式，用于单选和多选题)
+     */
+    private String choices;
+
+    /**
      * 题型 （1=单选，2=多选，3=填空，4=编程，5=设计题，6=问答题）
      */
     private Integer type;
@@ -83,5 +87,10 @@ public class Question extends BaseEntity{
      * 是否启用
      */
     private Boolean isEnabled;
+
+    /**
+     * 分类ID
+     */
+    private Integer categoryId;
 
 }

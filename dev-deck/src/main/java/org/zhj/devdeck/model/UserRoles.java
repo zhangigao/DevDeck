@@ -1,33 +1,32 @@
-package org.zhj.devdeck.entity;
+package org.zhj.devdeck.model;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.util.Date;
 import lombok.Data;
 
 /**
  * 
- * @TableName role
+ * @TableName user_roles
  */
-@TableName(value ="role")
+@TableName(value ="user_roles")
 @Data
-public class Role extends BaseEntity{
+public class UserRoles extends BaseEntity{
     /**
-     * 自增主键
+     * 主键ID
      */
     @TableId(value = "id",type = IdType.AUTO)
     private Integer id;
 
     /**
-     * 角色名称
+     * 用户ID
      */
-    private String name;
+    private Integer userId;
 
     /**
-     * 角色描述
+     * 角色ID
      */
-    private String description;
+    private Integer roleId;
 
 
 }

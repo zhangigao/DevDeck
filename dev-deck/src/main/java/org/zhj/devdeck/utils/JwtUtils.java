@@ -4,10 +4,9 @@ import com.alibaba.fastjson.JSONObject;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
-import org.zhj.devdeck.entity.User;
+import org.zhj.devdeck.model.User;
 
 import javax.crypto.SecretKey;
 import java.util.Date;

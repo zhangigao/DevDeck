@@ -1,6 +1,7 @@
 package org.zhj.devdeck.mapper;
 
-import org.zhj.devdeck.entity.Category;
+import org.apache.ibatis.annotations.Mapper;
+import org.zhj.devdeck.model.Category;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
@@ -9,6 +10,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 * @createDate 2025-05-23 20:52:16
 * @Entity org.zhj.devdeck.entity.Category
 */
+@Mapper
 public interface CategoryMapper extends BaseMapper<Category> {
 
 }

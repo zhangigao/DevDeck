@@ -1,6 +1,6 @@
 package org.zhj.devdeck.service;
 
-import org.zhj.devdeck.entity.AuditAvatar;
+import org.zhj.devdeck.model.AuditAvatar;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**

@@ -1,33 +1,37 @@
-package org.zhj.devdeck.entity;
+package org.zhj.devdeck.model;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.util.Date;
 import lombok.Data;
 
 /**
  * 
- * @TableName user_roles
+ * @TableName permission
  */
-@TableName(value ="user_roles")
+@TableName(value ="permission")
 @Data
-public class UserRoles extends BaseEntity{
+public class Permission extends BaseEntity{
     /**
-     * 主键ID
+     * 自增主键
      */
     @TableId(value = "id",type = IdType.AUTO)
     private Integer id;
 
     /**
-     * 用户ID
+     * 权限名称
      */
-    private Integer userId;
+    private String name;
 
     /**
-     * 角色ID
+     * 权限编码
      */
-    private Integer roleId;
+    private String code;
+
+    /**
+     * 权限描述
+     */
+    private String description;
 
 
 }

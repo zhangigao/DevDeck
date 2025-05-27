@@ -10,14 +10,12 @@ import org.springframework.web.bind.annotation.*;
 import org.zhj.devdeck.assembles.UserService;
 import org.zhj.devdeck.common.Result;
 import org.zhj.devdeck.dto.RegisterDTO;
-import org.zhj.devdeck.entity.User;
+import org.zhj.devdeck.model.User;
 import org.zhj.devdeck.enums.ResultCode;
 import org.zhj.devdeck.request.*;
 import org.zhj.devdeck.response.CaptchaResponse;
 import org.zhj.devdeck.response.LoginResponse;
 import org.zhj.devdeck.utils.UserContext;
-
-import java.util.Map;
 
 /**
  * 用户行文控制器

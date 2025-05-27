@@ -2,7 +2,7 @@ package org.zhj.devdeck.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.zhj.devdeck.dto.UserPageDTO;
-import org.zhj.devdeck.entity.User;
+import org.zhj.devdeck.model.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.zhj.devdeck.vo.UserDetailVO;
 import org.zhj.devdeck.vo.UserVO;

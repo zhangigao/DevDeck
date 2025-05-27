@@ -1,18 +1,12 @@
 package org.zhj.devdeck.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.annotation.Resource;
-import org.zhj.devdeck.entity.Role;
+import org.zhj.devdeck.model.Role;
 import org.zhj.devdeck.service.RoleService;
 import org.zhj.devdeck.mapper.RoleMapper;
 import org.springframework.stereotype.Service;
 import org.zhj.devdeck.vo.RoleVO;
-
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author 86155

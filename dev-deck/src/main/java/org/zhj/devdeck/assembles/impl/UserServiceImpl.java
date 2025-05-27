@@ -12,7 +12,7 @@ import org.springframework.util.ObjectUtils;
 import org.zhj.devdeck.assembles.UserService;
 import org.zhj.devdeck.constant.RedisConstant;
 import org.zhj.devdeck.dto.RegisterDTO;
-import org.zhj.devdeck.entity.User;
+import org.zhj.devdeck.model.User;
 import org.zhj.devdeck.enums.ResultCode;
 import org.zhj.devdeck.exception.QuizException;
 import org.zhj.devdeck.mapper.UserMapper;

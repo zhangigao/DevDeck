@@ -4,9 +4,18 @@
 
 ### 主要页面路由
 - 首页: `/`
+- 题目库: `/questions`
+- 分类题目页面: `/questions/category/:categoryId`（例如：`/questions/category/1`）
 - 刷题页面: `/quiz`
-- 分类题目页面: `/category/:categoryId`（例如：`/category/1`）
+- 分类刷题页面: `/quiz/category/:categoryId`（例如：`/quiz/category/1`）
 - 个人资料页面: `/profile`（需要登录）
+
+### 题目相关路由
+- 题目库首页: `/questions`
+- 分类题目: `/questions/category/:categoryId`
+- 创建题目: `/questions/create`（需要登录）
+- 我的题目: `/questions/my`（需要登录）
+- 我的收藏: `/questions/favorites`（需要登录）
 
 ### 社区路由
 - 社区首页: `/community`
@@ -19,8 +28,11 @@
 
 ### 管理后台路由
 - 管理后台首页/仪表盘: `/admin/dashboard`
-- 用户管理: `/admin/user-list`
-- 角色管理: `/admin/user-roles`
+- 分类管理: `/admin/categories`
+- 题目管理: `/admin/questions`
+- 用户管理: `/admin/users`
+- 角色管理: `/admin/roles`
+- 权限管理: `/admin/permissions`
 - 头像审核: `/admin/avatar-review`
 
 ## 访问说明

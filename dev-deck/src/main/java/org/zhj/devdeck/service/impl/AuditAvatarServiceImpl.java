@@ -2,8 +2,7 @@ package org.zhj.devdeck.service.impl;
 
 import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.zhj.devdeck.entity.AuditAvatar;
-import org.zhj.devdeck.enums.AuditEnum;
+import org.zhj.devdeck.model.AuditAvatar;
 import org.zhj.devdeck.service.AuditAvatarService;
 import org.zhj.devdeck.mapper.AuditAvatarMapper;
 import org.springframework.stereotype.Service;

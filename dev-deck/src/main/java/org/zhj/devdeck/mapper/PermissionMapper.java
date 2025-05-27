@@ -1,6 +1,6 @@
 package org.zhj.devdeck.mapper;
 
-import org.zhj.devdeck.entity.Permission;
+import org.zhj.devdeck.model.Permission;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**

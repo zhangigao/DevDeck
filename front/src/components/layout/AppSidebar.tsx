@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout, Menu } from 'antd';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { 
   HomeOutlined, 
@@ -16,7 +16,10 @@ import {
   SafetyOutlined,
   CrownOutlined,
   UsergroupAddOutlined,
-  AuditOutlined
+  AuditOutlined,
+  BookOutlined,
+  TagsOutlined,
+  QuestionCircleOutlined
 } from '@ant-design/icons';
 import { RootState } from '@/store';
 
@@ -24,49 +27,124 @@ const { Sider } = Layout;
 
 const AppSidebar: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { sidebarCollapsed } = useSelector((state: RootState) => state.ui);
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const [openKeys, setOpenKeys] = useState<string[]>([]);
+
+  // 根据当前路径设置展开的菜单
+  useEffect(() => {
+    const path = location.pathname;
+    const pathParts = path.split('/').filter(Boolean);
+    
+    if (pathParts.length === 0) {
+      setOpenKeys([]);
+      return;
+    }
+    
+    // 根据当前路径确定需要展开的菜单
+    if (pathParts[0] === 'questions' && pathParts.length > 1) {
+      // /questions/create, /questions/my, /questions/favorites
+      setOpenKeys(['my-questions']);
+    } else if (pathParts[0] === 'admin') {
+      // 所有 /admin/* 路径
+      setOpenKeys(['admin']);
+    } else if (path === '/profile') {
+      setOpenKeys(['user']);
+    } else if (pathParts[0] === 'auth' && (pathParts[1] === 'login' || pathParts[1] === 'register')) {
+      setOpenKeys(['auth']);
+    } else {
+      setOpenKeys([]);
+    }
+  }, [location.pathname]);
 
   // 菜单项配置
   const menuItems = [
     {
       key: '/',
       icon: <HomeOutlined />,
-      label: <Link to="/">首页</Link>,
+      label: '首页',
     },
     {
-      key: 'quiz',
+      key: '/questions',
+      icon: <BookOutlined />,
+      label: '题目库',
+    },
+    {
+      key: '/quiz',
       icon: <ReadOutlined />,
-      label: <Link to="/quiz">刷题</Link>,
+      label: '刷题',
     },
     {
-      key: 'community',
+      key: '/community',
       icon: <CommentOutlined />,
-      label: <Link to="/community">社区</Link>,
+      label: '社区',
     }
   ];
 
   // 已登录用户可见的菜单项
   const authenticatedMenuItems = [
     {
-      key: 'questions',
+      key: 'my-questions',
       icon: <AppstoreOutlined />,
-      label: '题目管理',
+      label: '我的题目',
       children: [
         {
           key: '/questions/create',
           icon: <FileAddOutlined />,
-          label: <Link to="/questions/create">创建题目</Link>,
+          label: '创建题目',
         },
         {
           key: '/questions/my',
           icon: <HistoryOutlined />,
-          label: <Link to="/questions/my">我的题目</Link>,
+          label: '我的题目',
         },
         {
           key: '/questions/favorites',
           icon: <StarOutlined />,
-          label: <Link to="/questions/favorites">我的收藏</Link>,
+          label: '我的收藏',
+        },
+      ],
+    },
+    {
+      key: 'admin',
+      icon: <DashboardOutlined />,
+      label: '管理后台',
+      children: [
+        {
+          key: '/admin/dashboard',
+          icon: <DashboardOutlined />,
+          label: '仪表盘',
+        },
+        {
+          key: '/admin/categories',
+          icon: <TagsOutlined />,
+          label: '分类管理',
+        },
+        {
+          key: '/admin/questions',
+          icon: <QuestionCircleOutlined />,
+          label: '题目管理',
+        },
+        {
+          key: '/admin/users',
+          icon: <TeamOutlined />,
+          label: '用户管理',
+        },
+        {
+          key: '/admin/roles',
+          icon: <CrownOutlined />,
+          label: '角色管理',
+        },
+        {
+          key: '/admin/permissions',
+          icon: <SafetyOutlined />,
+          label: '权限管理',
+        },
+        {
+          key: '/admin/avatar-review',
+          icon: <AuditOutlined />,
+          label: '头像审核',
         },
       ],
     },
@@ -78,7 +156,7 @@ const AppSidebar: React.FC = () => {
         {
           key: '/profile',
           icon: <UserOutlined />,
-          label: <Link to="/profile">个人资料</Link>,
+          label: '个人资料',
         },
       ],
     },
@@ -93,11 +171,11 @@ const AppSidebar: React.FC = () => {
       children: [
         {
           key: '/auth/login',
-          label: <Link to="/auth/login">登录</Link>,
+          label: '登录',
         },
         {
           key: '/auth/register',
-          label: <Link to="/auth/register">注册</Link>,
+          label: '注册',
         },
       ],
     },
@@ -106,7 +184,8 @@ const AppSidebar: React.FC = () => {
   // 组合所有菜单项
   const allMenuItems = [
     ...menuItems,
-    ...(isAuthenticated ? authenticatedMenuItems : guestMenuItems),
+    // 临时显示所有菜单项，用于开发测试
+    ...authenticatedMenuItems,
   ];
 
   // 获取当前选中的菜单项
@@ -132,19 +211,18 @@ const AppSidebar: React.FC = () => {
     return [];
   };
 
-  // 获取当前展开的子菜单
-  const getOpenKeys = () => {
-    const path = location.pathname;
-    const pathParts = path.split('/').filter(Boolean);
-    
-    if (pathParts.length === 0) return [];
-    
-    if (pathParts[0] === 'questions') return ['questions'];
-    if (pathParts[0] === 'admin') return ['admin'];
-    if (pathParts[0] === 'profile') return ['user'];
-    if (pathParts[0] === 'auth' && (pathParts[1] === 'login' || pathParts[1] === 'register')) return ['auth'];
-    
-    return [];
+  // 处理菜单展开/收起
+  const handleOpenChange = (keys: string[]) => {
+    setOpenKeys(keys);
+  };
+
+  // 处理菜单点击
+  const handleMenuClick = (e: any) => {
+    console.log('菜单点击:', e.key);
+    // 如果点击的是路由项，直接导航
+    if (e.key.startsWith('/')) {
+      navigate(e.key);
+    }
   };
 
   return (
@@ -175,7 +253,9 @@ const AppSidebar: React.FC = () => {
       <Menu
         mode="inline"
         selectedKeys={getSelectedKeys()}
-        defaultOpenKeys={getOpenKeys()}
+        openKeys={openKeys}
+        onOpenChange={handleOpenChange}
+        onClick={handleMenuClick}
         items={allMenuItems}
         style={{ borderRight: 0 }}
       />

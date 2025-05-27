@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { 
   Card, 
   Button, 
@@ -63,72 +64,7 @@ interface ChatMessage {
   timestamp: Date;
 }
 
-// 模拟获取题目数据
-const mockFetchQuestions = async (): Promise<any> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        success: true,
-        data: [
-          {
-            id: 1,
-            uuid: '550e8400-e29b-41d4-a716-446655440001',
-            title: 'JavaScript中的原型链是什么?',
-            content: '请解释JavaScript中的原型链概念以及它与继承的关系。',
-            type: QuestionType.TextAnswer,
-            difficulty: 2,
-            correctAnswer: '原型链是JavaScript实现继承的主要方法。每个对象都有一个原型对象，对象从原型继承属性和方法，原型对象也可能有自己的原型，以此类推，形成原型链。',
-            hint: '考虑对象、原型和__proto__之间的关系',
-            source: 'JavaScript高级编程',
-            isOfficial: true,
-            submitCount: 283,
-            tags: ['JavaScript', '原型', '继承'],
-          },
-          {
-            id: 2,
-            uuid: '550e8400-e29b-41d4-a716-446655440002',
-            title: 'React中的虚拟DOM是什么?',
-            content: '请选择关于React虚拟DOM的正确描述:',
-            type: QuestionType.SingleChoice,
-            difficulty: 2,
-            choices: [
-              { id: 'A', content: '虚拟DOM是一个实际的DOM节点' },
-              { id: 'B', content: '虚拟DOM是JavaScript对象，代表UI的轻量级描述' },
-              { id: 'C', content: '虚拟DOM直接操作浏览器的DOM API' },
-              { id: 'D', content: '虚拟DOM只能用于React框架' },
-            ],
-            correctAnswer: 'B',
-            hint: '考虑虚拟DOM的实现原理',
-            source: 'React官方文档',
-            isOfficial: true,
-            submitCount: 456,
-            tags: ['React', '虚拟DOM', '前端框架'],
-          },
-          {
-            id: 3,
-            uuid: '550e8400-e29b-41d4-a716-446655440003',
-            title: 'CSS Flexbox布局',
-            content: '以下哪些是CSS Flexbox的有效属性？（多选）',
-            type: QuestionType.MultipleChoice,
-            difficulty: 1,
-            choices: [
-              { id: 'A', content: 'justify-content' },
-              { id: 'B', content: 'align-items' },
-              { id: 'C', content: 'flex-direction' },
-              { id: 'D', content: 'grid-template-columns' },
-            ],
-            correctAnswer: ['A', 'B', 'C'],
-            hint: 'Grid和Flexbox是不同的布局系统',
-            source: 'MDN Web Docs',
-            isOfficial: true,
-            submitCount: 234,
-            tags: ['CSS', 'Flexbox', '布局'],
-          },
-        ]
-      });
-    }, 1000);
-  });
-};
+import { getRandomQuestions, getQuestionBySlug } from '@/api/questionApi';
 
 const QuizPage: React.FC<QuizPageProps> = ({ categoryId }) => {
   const dispatch = useDispatch();
@@ -179,28 +115,70 @@ const QuizPage: React.FC<QuizPageProps> = ({ categoryId }) => {
     trackMouse: true,
   });
 
+  // 从URL参数中获取slug
+  const { slug } = useParams<{ slug?: string }>();
+
   // 获取题目数据
   useEffect(() => {
     const fetchData = async () => {
       dispatch(fetchQuestionsStart());
       try {
-        const response = await mockFetchQuestions();
-        if (response.success) {
-          const filteredQuestions = categoryId 
-            ? response.data.filter((q: any) => q.tags.includes(categoryId))
-            : response.data;
-          
-          dispatch(fetchQuestionsSuccess(filteredQuestions));
+        if (slug) {
+          // 如果有slug参数，获取指定题目
+          const response = await getQuestionBySlug(slug);
+          if (response.code === 200 && response.data) {
+                          // 将API返回的数据格式转换为store需要的格式
+              const formattedQuestion = {
+                ...response.data,
+                // 确保类型一致性
+                type: response.data.type === 1 ? QuestionType.SingleChoice : 
+                    response.data.type === 2 ? QuestionType.MultipleChoice : 
+                    QuestionType.TextAnswer,
+                // 添加tags字段(从categoryName生成)
+                tags: [response.data.categoryName || '未分类'],
+                // 确保correctAnswer字段存在
+                correctAnswer: response.data.correctAnswer || ""
+              };
+            dispatch(fetchQuestionsSuccess([formattedQuestion]));
+          } else {
+            dispatch(fetchQuestionsFailure('获取题目失败'));
+          }
         } else {
-          dispatch(fetchQuestionsFailure('获取题目失败'));
+          // 否则获取随机题目
+          const count = 5; // 获取5道随机题目
+          const response = await getRandomQuestions(count);
+          
+          if (response.code === 200 && response.data) {
+            const filteredQuestions = categoryId 
+              ? response.data.filter((q: any) => q.categoryId === parseInt(categoryId))
+              : response.data;
+            
+            // 格式化每个问题，确保与store中的类型一致
+                          const formattedQuestions = filteredQuestions.map(question => ({
+                ...question,
+                // 确保类型一致性
+                type: question.type === 1 ? QuestionType.SingleChoice : 
+                    question.type === 2 ? QuestionType.MultipleChoice : 
+                    QuestionType.TextAnswer,
+                // 添加tags字段(从categoryName生成)
+                tags: [question.categoryName || '未分类'],
+                // 确保correctAnswer字段存在
+                correctAnswer: question.correctAnswer || ""
+              }));
+            
+            dispatch(fetchQuestionsSuccess(formattedQuestions));
+          } else {
+            dispatch(fetchQuestionsFailure('获取题目失败'));
+          }
         }
       } catch (error) {
+        console.error('获取题目时发生错误:', error);
         dispatch(fetchQuestionsFailure('获取题目时发生错误'));
       }
     };
 
     fetchData();
-  }, [dispatch, categoryId]);
+  }, [dispatch, categoryId, slug]);
 
   // 获取当前题目
   const currentQuestion = questions[currentQuestionIndex];
@@ -226,10 +204,20 @@ const QuizPage: React.FC<QuizPageProps> = ({ categoryId }) => {
         isCorrect = userAnswer === currentQuestion.correctAnswer;
         break;
       case QuestionType.MultipleChoice:
-        isCorrect = JSON.stringify([...userAnswer].sort()) === JSON.stringify([...currentQuestion.correctAnswer].sort());
+        // 处理多选题答案比较
+        const correctAnswerArray = Array.isArray(currentQuestion.correctAnswer) 
+          ? currentQuestion.correctAnswer 
+          : [currentQuestion.correctAnswer];
+        isCorrect = JSON.stringify([...userAnswer].sort()) === JSON.stringify([...correctAnswerArray].sort());
         break;
       case QuestionType.TextAnswer:
-        isCorrect = userAnswer.includes(currentQuestion.correctAnswer.substring(0, 10));
+        // 处理文本答案比较
+        const correctTextAnswer = typeof currentQuestion.correctAnswer === 'string'
+          ? currentQuestion.correctAnswer
+          : Array.isArray(currentQuestion.correctAnswer) && currentQuestion.correctAnswer.length > 0
+            ? currentQuestion.correctAnswer[0]
+            : '';
+        isCorrect = typeof userAnswer === 'string' && userAnswer.includes(correctTextAnswer.substring(0, 10));
         break;
       default:
         break;
@@ -573,7 +561,13 @@ const QuizPage: React.FC<QuizPageProps> = ({ categoryId }) => {
                   <CheckCircleOutlined className="mr-3 text-xl" /> 参考答案
                 </Title>
                 <div className="bg-white p-4 rounded-xl border border-gray-200 mb-4">
-                  <ReactMarkdown className="text-gray-800">{currentQuestion.correctAnswer}</ReactMarkdown>
+                  <ReactMarkdown className="text-gray-800">
+                    {typeof currentQuestion.correctAnswer === 'string' 
+                      ? currentQuestion.correctAnswer 
+                      : Array.isArray(currentQuestion.correctAnswer) 
+                        ? currentQuestion.correctAnswer.join(', ')
+                        : String(currentQuestion.correctAnswer)}
+                  </ReactMarkdown>
                 </div>
                 
                 {currentQuestion.hint && (

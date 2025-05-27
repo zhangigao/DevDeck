@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.zhj.devdeck.mapper.UserRolesMapper">
 
-    <resultMap id="BaseResultMap" type="org.zhj.devdeck.entity.UserRoles">
+    <resultMap id="BaseResultMap" type="org.zhj.devdeck.model.UserRoles">
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="userId" column="user_id" jdbcType="INTEGER"/>
             <result property="roleId" column="role_id" jdbcType="INTEGER"/>

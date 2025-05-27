@@ -2,10 +2,8 @@ package org.zhj.devdeck.mapper;
 
 import org.apache.ibatis.annotations.Param;
 import org.zhj.devdeck.dto.BindRolePermissionDTO;
-import org.zhj.devdeck.entity.RolePermissions;
+import org.zhj.devdeck.model.RolePermissions;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-
-import java.util.List;
 
 /**
 * @author 86155

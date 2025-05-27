@@ -1,6 +1,6 @@
 package org.zhj.devdeck.utils;
 
-import org.zhj.devdeck.entity.User;
+import org.zhj.devdeck.model.User;
 
 import java.util.Optional;
 

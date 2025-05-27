@@ -14,7 +14,7 @@ import org.zhj.devdeck.dto.CreatePermissionDTO;
 import org.zhj.devdeck.dto.CreateRoleDTO;
 import org.zhj.devdeck.dto.UpdateUserRolesDTO;
 import org.zhj.devdeck.dto.UserPageDTO;
-import org.zhj.devdeck.entity.*;
+import org.zhj.devdeck.model.*;
 import org.zhj.devdeck.service.*;
 import org.zhj.devdeck.vo.PermissionVO;
 import org.zhj.devdeck.vo.RoleVO;
